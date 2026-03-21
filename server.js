@@ -32,6 +32,31 @@ app.get('/api/inventory/:designCode', async (req, res) => {
   res.json(result.rows);
 });
 
+// 1.1 Get all available sizes across all designs
+app.get('/api/available-sizes', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT DISTINCT size 
+      FROM inventory 
+      WHERE quantity > 0 
+      ORDER BY 
+        CASE size
+          WHEN 'XS' THEN 1
+          WHEN 'S' THEN 2
+          WHEN 'M' THEN 3
+          WHEN 'L' THEN 4
+          WHEN 'XL' THEN 5
+          WHEN 'XXL' THEN 6
+          ELSE 7
+        END
+    `);
+    res.json(result.rows.map(r => r.size));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch sizes' });
+  }
+});
+
 // 2. Create Razorpay Order
 app.post('/api/create-order', async (req, res) => {
   const { sku, amount, customer } = req.body;
