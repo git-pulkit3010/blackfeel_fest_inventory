@@ -1,0 +1,5 @@
+node_modules/
+.env
+Fest SKUs .xlsx
+package-lock.json
+screen.png

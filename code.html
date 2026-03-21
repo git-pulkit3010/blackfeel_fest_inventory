@@ -1,345 +1,417 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlackFeel Fest Store</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        /* Modern aesthetic update based on reference image - strictly NO change in hooks/IDs */
+        body { 
+            font-family: 'Helvetica Neue', 'Helvetica', Arial, sans-serif; /* Clean modern sans-serif like image */
+            background-color: #000000; /* Deep black from reference image */
+            color: #FFFFFF; /* High contrast text from reference image */
+            padding: 40px 20px; /* Better padding */
+            margin: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        h1 { 
+            text-align: left; /* Image feels left aligned */
+            font-weight: 900; /* Extra bold */
+            text-transform: uppercase; /* All caps from image aesthetic */
+            letter-spacing: 4px; /* Widely tracked text from image */
+            font-size: 2.5rem;
+            margin-top: 0;
+            margin-bottom: 60px; /* More breathing room */
+        }
+        
+        /* Grid for the 4 products - keeping standard container ID */
+        .product-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 50px; /* Increased gap for minimalist spacing */
+            max-width: 1400px; 
+            margin: 0 auto; 
+        }
+        
+        /* Minimalist product card that blends with background */
+        .product-card { 
+            background: transparent; /* No ugly borders like current site */
+            border: none; 
+            padding: 0; 
+            text-align: center; 
+            border-radius: 0; /* Sharp corners like image aesthetic */
+            box-shadow: none; /* Removed shadow */
+        }
+        
+        .product-card img { 
+            max-width: 100%; 
+            height: auto; 
+            border-radius: 0; /* Sharp corners for imagery */
+            margin-bottom: 25px; /* Spacing below image */
+        }
+        
+        .product-card h3 { 
+            margin: 15px 0 5px; 
+            font-size: 1.3rem; 
+            font-weight: 700;
+            text-transform: uppercase; /* Titles uppercase like image */
+            letter-spacing: 1px;
+        }
+        
+        .product-card p { 
+            font-size: 1.2rem; 
+            color: #A0A0A0; /* Light grey subtext/price like image text */
+            margin-bottom: 20px; 
+            font-weight: 300;
+        }
+        
+        label { 
+            display: block; 
+            text-align: left; 
+            font-size: 0.8rem; 
+            margin-top: 15px; 
+            margin-bottom: 5px;
+            color: #777; /* Subtle labels */
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Dropdowns styled to match minimalist inputs from reference image */
+        select { 
+            margin-bottom: 20px; 
+            padding: 12px; 
+            width: 100%; 
+            border: 1px solid #444; /* Thin border like reference inputs */
+            border-radius: 0; /* Sharp corners */
+            background-color: #111; /* Dark input background like image */
+            color: #FFF; /* White text inside input */
+            font-family: inherit;
+            font-size: 0.95rem;
+            
+            /* Style the custom arrow */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="6" viewBox="0 0 12 6"><path fill="%23FFFFFF" d="M6 6L0 0h12z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: calc(100% - 15px) 50%;
+            cursor: pointer;
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: #FFF; /* Highlight on focus */
+        }
+        
+        /* High prominence button to match premium aesthetic of image */
+        button { 
+            background: #FFFFFF; /* White background to stand out on black */
+            color: #000000; /* Contrast against background */
+            border: none; 
+            padding: 15px; 
+            cursor: pointer; 
+            width: 100%; 
+            font-size: 0.9rem; 
+            border-radius: 0; /* Sharp corners like image aesthetic */
+            font-weight: 900; 
+            text-transform: uppercase; /* All caps bold text from image buttons */
+            letter-spacing: 2px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        
+        button:hover { 
+            background: #CCCCCC; /* Subtle grey on hover */
+        }
 
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Manrope:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            "on-primary-fixed-variant": "#5d4201",
-            "primary": "#e9c176",
-            "on-tertiary-fixed-variant": "#524436",
-            "outline": "#909096",
-            "on-background": "#e2e2e8",
-            "on-tertiary": "#3b2e21",
-            "tertiary": "#d7c3b0",
-            "surface-container": "#1e2024",
-            "on-surface": "#e2e2e8",
-            "tertiary-container": "#1c1207",
-            "tertiary-fixed-dim": "#d7c3b0",
-            "on-secondary-fixed": "#181c20",
-            "primary-fixed": "#ffdea5",
-            "error": "#ffb4ab",
-            "secondary-fixed-dim": "#c4c6cc",
-            "secondary-fixed": "#e0e2e8",
-            "on-error": "#690005",
-            "surface": "#111317",
-            "on-surface-variant": "#c6c6cc",
-            "outline-variant": "#45464b",
-            "primary-container": "#1d1200",
-            "secondary": "#c4c6cc",
-            "surface-container-highest": "#333539",
-            "on-secondary-fixed-variant": "#44474b",
-            "on-error-container": "#ffdad6",
-            "on-tertiary-container": "#8d7c6b",
-            "primary-fixed-dim": "#e9c176",
-            "on-tertiary-fixed": "#241a0e",
-            "on-primary": "#412d00",
-            "surface-container-lowest": "#0c0e12",
-            "background": "#111317",
-            "on-secondary-container": "#b6b8be",
-            "secondary-container": "#46494e",
-            "on-primary-container": "#9b7937",
-            "surface-variant": "#333539",
-            "surface-tint": "#e9c176",
-            "on-primary-fixed": "#261900",
-            "surface-container-low": "#1a1c20",
-            "inverse-surface": "#e2e2e8",
-            "on-secondary": "#2d3135",
-            "inverse-on-surface": "#2f3035",
-            "surface-dim": "#111317",
-            "surface-container-high": "#282a2e",
-            "surface-bright": "#37393e",
-            "inverse-primary": "#775a19",
-            "error-container": "#93000a",
-            "tertiary-fixed": "#f4dfcb"
-          },
-          fontFamily: {
-            "headline": ["Noto Serif"],
-            "body": ["Manrope"],
-            "label": ["Manrope"]
-          },
-          borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
-        },
-      },
-    }
-  </script>
-<style>
-    .material-symbols-outlined {
-      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
-      font-size: 20px;
-    }
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 4px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: #111317;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #45464b;
-    }
-    .product-card:hover .hover-image {
-      opacity: 1;
-    }
-  </style>
+        /* Modal Styles - Updated for Dark Theme consistency */
+        .modal-overlay { 
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.85); /* Darker overlay for better focus */
+            align-items: center; 
+            justify-content: center; 
+            z-index: 1000; 
+        }
+        
+        .modal-content { 
+            background: #111111; /* Dark background matching image inputs */
+            color: #FFFFFF; 
+            padding: 40px; 
+            border-radius: 0; /* Sharp corners consistency */
+            width: 90%; 
+            max-width: 450px; 
+            border: 1px solid #333; /* Subtle border */
+        }
+        
+        .modal-content h2 { 
+            margin-top: 0; 
+            margin-bottom: 30px; 
+            text-align: center; 
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 900;
+            font-size: 1.5rem;
+        }
+        
+        .modal-content input, .modal-content textarea { 
+            width: 100%; 
+            padding: 12px; 
+            margin-bottom: 15px; 
+            border: 1px solid #444; /* Thin border from image aesthetic */
+            border-radius: 0; /* Sharp corners */
+            box-sizing: border-box; 
+            font-family: inherit;
+            background-color: #000000; /* Dark input bg */
+            color: #FFFFFF; /* Light text */
+        }
+        
+        .modal-content input:focus, .modal-content textarea:focus {
+            border-color: #FFF; /* Highlight focus edge */
+            outline: none;
+        }
+        
+        /* Secondary action style (Cancel) */
+        .modal-close { 
+            background: transparent; 
+            color: #A0A0A0; /* Subtle grey text common in image */
+            padding: 10px; 
+            margin-top: 15px; 
+            border: 1px solid #444; 
+            text-transform: uppercase;
+            font-weight: 300;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+        }
+        
+        .modal-close:hover {
+            background: #222;
+            color: #FFF;
+        }
+        
+        /* SOLD OUT style */
+        .product-card p[style*="color:red"] {
+            color: #FF4D4D !important; /* Brighter red for visibility on dark mode */
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+    </style>
 </head>
-<body class="bg-surface text-on-surface font-body selection:bg-primary/30 selection:text-primary">
-<!-- TopNavBar -->
-<nav class="fixed top-0 w-full z-50 bg-[#111317]/60 backdrop-blur-xl dark:bg-[#111317]/60 shadow-[0px_0px_40px_rgba(38,25,0,0.06)] font-['Noto_Serif'] antialiased tracking-tight">
-<div class="flex justify-between items-center w-full px-12 py-6 max-w-[1920px] mx-auto">
-<div class="flex items-center gap-12">
-<a class="text-2xl font-bold tracking-[0.2em] uppercase text-[#e2e2e8] dark:text-[#e2e2e8]" href="#">NOCTURNAL</a>
-<div class="hidden md:flex gap-8 items-center">
-<a class="text-[#e9c176] border-b border-[#e9c176] pb-1 uppercase tracking-[0.1em] text-[10px] font-medium hover:text-[#e9c176] transition-colors duration-300" href="#">Collections</a>
-<a class="text-[#e2e2e8] uppercase tracking-[0.1em] text-[10px] font-medium hover:text-[#e9c176] transition-colors duration-300" href="#">New Arrivals</a>
-<a class="text-[#e2e2e8] uppercase tracking-[0.1em] text-[10px] font-medium hover:text-[#e9c176] transition-colors duration-300" href="#">Archive</a>
-<a class="text-[#e2e2e8] uppercase tracking-[0.1em] text-[10px] font-medium hover:text-[#e9c176] transition-colors duration-300" href="#">Atelier</a>
-</div>
-</div>
-<div class="flex items-center gap-6 text-[#e9c176]">
-<button class="hover:scale-95 duration-200 ease-in-out">
-<span class="material-symbols-outlined" data-icon="search">search</span>
-</button>
-<button class="hover:scale-95 duration-200 ease-in-out">
-<span class="material-symbols-outlined" data-icon="person">person</span>
-</button>
-<button class="hover:scale-95 duration-200 ease-in-out">
-<span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
-</button>
-</div>
-</div>
-</nav>
-<main class="pt-32 min-h-screen px-12 max-w-[1920px] mx-auto pb-24">
-<!-- Header Section -->
-<header class="mb-16">
-<h1 class="font-headline text-5xl md:text-6xl tracking-tighter mb-4 text-on-surface">Collections</h1>
-<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
-<p class="text-tertiary max-w-xl font-body text-lg leading-relaxed">
-          Exploring the interplay of shadow and structure. Our latest collection features sculptural silhouettes crafted for the modern night.
-        </p>
-<div class="flex items-center gap-4">
-<span class="font-label text-[10px] uppercase tracking-[0.2em] text-outline">Sort by</span>
-<div class="relative group">
-<button class="flex items-center gap-2 border-b border-outline-variant pb-1 font-label text-[12px] uppercase tracking-[0.1em] text-on-surface">
-              Newest <span class="material-symbols-outlined text-[14px]">expand_more</span>
-</button>
-</div>
-</div>
-</div>
-</header>
-<div class="flex flex-col md:flex-row gap-16">
-<!-- Sidebar Filters -->
-<aside class="w-full md:w-64 flex-shrink-0">
-<div class="sticky top-40 space-y-12">
-<!-- Filter Group: Collection -->
-<section>
-<h3 class="font-label text-[10px] uppercase tracking-[0.2em] text-primary mb-6">Collection</h3>
-<ul class="space-y-4 font-label text-[12px] tracking-widest text-outline">
-<li class="flex items-center justify-between group cursor-pointer">
-<span class="group-hover:text-on-surface transition-colors">Midnight Atelier</span>
-<span class="text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">12</span>
-</li>
-<li class="flex items-center justify-between group cursor-pointer text-on-surface font-semibold">
-<span>The Archive</span>
-<span class="text-[10px]">24</span>
-</li>
-<li class="flex items-center justify-between group cursor-pointer">
-<span>Tailored Essentials</span>
-<span class="text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">08</span>
-</li>
-<li class="flex items-center justify-between group cursor-pointer">
-<span>Sculptural Forms</span>
-<span class="text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">15</span>
-</li>
-</ul>
-</section>
-<!-- Filter Group: Size -->
-<section>
-<h3 class="font-label text-[10px] uppercase tracking-[0.2em] text-primary mb-6">Size</h3>
-<div class="grid grid-cols-4 gap-2">
-<button class="h-10 border border-outline-variant text-[10px] font-label hover:border-primary transition-colors">XS</button>
-<button class="h-10 border border-primary text-[10px] font-label text-primary">S</button>
-<button class="h-10 border border-outline-variant text-[10px] font-label hover:border-primary transition-colors">M</button>
-<button class="h-10 border border-outline-variant text-[10px] font-label hover:border-primary transition-colors">L</button>
-<button class="h-10 border border-outline-variant text-[10px] font-label hover:border-primary transition-colors">XL</button>
-</div>
-</section>
-<!-- Filter Group: Color -->
-<section>
-<h3 class="font-label text-[10px] uppercase tracking-[0.2em] text-primary mb-6">Color</h3>
-<div class="flex flex-wrap gap-3">
-<button class="w-6 h-6 rounded-full bg-[#111317] border border-outline-variant ring-1 ring-offset-2 ring-offset-surface ring-primary"></button>
-<button class="w-6 h-6 rounded-full bg-[#2d3135] border border-outline-variant"></button>
-<button class="w-6 h-6 rounded-full bg-[#3b2e21] border border-outline-variant"></button>
-<button class="w-6 h-6 rounded-full bg-[#e2e2e8] border border-outline-variant"></button>
-<button class="w-6 h-6 rounded-full bg-[#d7c3b0] border border-outline-variant"></button>
-</div>
-</section>
-<!-- Filter Group: Price -->
-<section>
-<h3 class="font-label text-[10px] uppercase tracking-[0.2em] text-primary mb-6">Price Range</h3>
-<div class="px-2">
-<input class="w-full accent-primary bg-surface-container h-1 rounded-full appearance-none" max="5000" min="200" step="100" type="range"/>
-<div class="flex justify-between mt-4 font-label text-[10px] text-outline tracking-widest">
-<span>$200</span>
-<span>$5000</span>
-</div>
-</div>
-</section>
-</div>
-</aside>
-<!-- Product Grid -->
-<div class="flex-grow">
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
-<!-- Product Card 1 -->
-<div class="product-card group cursor-pointer">
-<div class="relative aspect-[3/4] overflow-hidden bg-surface-container-low mb-6">
-<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Model wearing a long black wool oversized coat" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDK-9DpRCQ68xpES8Mb1p5BH0r5xjbWqBK-U4Ze_FPBS20faZFSiOlv3kBp1PaZxaSfGBbIA9CCxFUfqYkI2cnL02OHOb6aWExNeAYzbl-ssihZ1AOrzmjPRs0uMHcUj8STdQAAcfAyBHJQ5_keokllmNrZ-d1QxCo-JTZE7GNxPF3l3We14rxQQ4xKGGvpW5pM0WL0jd4ef7K-UKnV_XB0ktraUe8kRATPMeShU84LOjoPDecZQ8GQULk1itefwk0D6R8YT_VO7C0"/>
-<img class="hover-image absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700" data-alt="Detail shot of the back of a black wool coat" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCo96ewqAAn_cDh0ZmlGz-dZmqTqdkbeT0Cn0Ybcgy6I9Sh6uWXS7-_a_dkN3PwuDHjPrkvehA0E93SmWjLgeViTmQLMLh3ZfFKb2QFG-27-NWfYF9D-fSTOAyDVafCSzAqBBP_Yl2cSSB_hxnw-HWF4UCcmojGhbG2BHM2bDkSChyvwEsQ6DbDfOmU_j4cdPt5fbTIQbIkRXfaJDDgtgnGMB5LUnGvIp47R4ENR_bbX-qQ8n3N8DhbC31GVsctN0BwipdJnBfji9E"/>
-<button class="absolute bottom-6 left-6 right-6 py-3 bg-surface/80 backdrop-blur-md text-on-surface font-label text-[10px] uppercase tracking-[0.2em] opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">Quick Add</button>
-</div>
-<div class="space-y-2">
-<p class="font-label text-[10px] text-outline uppercase tracking-widest">Midnight Atelier</p>
-<h3 class="font-headline text-xl text-on-surface">Obsidian Overcoat</h3>
-<p class="font-body text-primary text-sm">$2,450</p>
-</div>
-</div>
-<!-- Product Card 2 -->
-<div class="product-card group cursor-pointer">
-<div class="relative aspect-[3/4] overflow-hidden bg-surface-container-low mb-6">
-<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Model in structured silk evening dress with avant garde details" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5ISusRWthq1k3fWqGt43tSMlrEubjn-9MV-PjJDxhatYWKOSe08Hyy7HoZDYzBCa-tRFvUqOuyxXyoNM5BXbBDLJwQAw0ESpVtvMcuaQf_1u2XLMWUoYNyz8ph8fZ3ImfWqy0XfnZZjHiAaQWWxx2iq0kKYQUOb88eoe8RYOb0s03-RJcp6EzE1Uad_Ld4vvYA7H1QADb0AnxldqSpbxtDTfJbwdvbeGQXHbx8hFcaGeAvHdKWzEKuW5IPJsZ0OaxG7qmaay1aE0"/>
-<img class="hover-image absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700" data-alt="Side profile of structured silk dress" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmp0ydblqiaeWgLd5PULxxL08em6_65bETNukw45vuIWAiWMDGw-sK1VO6UvtWES3m1W65q-5KZ4X1zQVO-9N5C5peg1W6sw93ZYzsaWkgOpE9KiX-ziD_PVXDUNkGUImJ_XoHNGzjz8k3vWIzLjnDI4TFgI-fA6Dt_cLfAkZDe8ap95upyjYYKkXNat8ijZL80_qVUwTqnV2Jnp651JBPkT8lQK39C6AHPlHoD46WlrWXNgxUv96HTBuGTKYTLdyyr3xVsrBGUrQ"/>
-<button class="absolute bottom-6 left-6 right-6 py-3 bg-surface/80 backdrop-blur-md text-on-surface font-label text-[10px] uppercase tracking-[0.2em] opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">Quick Add</button>
-</div>
-<div class="space-y-2">
-<p class="font-label text-[10px] text-outline uppercase tracking-widest">The Archive</p>
-<h3 class="font-headline text-xl text-on-surface">Silk Column Gown</h3>
-<p class="font-body text-primary text-sm">$3,100</p>
-</div>
-</div>
-<!-- Product Card 3 (Feature) -->
-<div class="product-card group cursor-pointer">
-<div class="relative aspect-[3/4] overflow-hidden bg-surface-container-low mb-6">
-<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Tailored wide leg charcoal trousers on a dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvxcix8UnW6q3JLin1OUzN8RtWSOW0qqIQPyUfZfGuHwilMZ53VseM8IDdCqYyytpdjkUF8TehXluwxNFB-hGuInRe8X1S1ttoPM9ZP-Yc3R1mE8RTroh8fSAW5c2PjRVslUSuTPPanIZa8NAbfKeRffFwSQxF6gcYLIUkYhgZ0kco5S42WA6vOU4GX8ZYWBFKVVatokIxX5KzZLE1mQzYFJddx8s8WgE1eCo2LawfpGQIx7yy0VcKKIMhuutfmvyCZh7-7Kq9vi0"/>
-<div class="absolute top-6 right-6">
-<span class="bg-primary text-on-primary px-3 py-1 font-label text-[9px] uppercase tracking-widest">New</span>
-</div>
-<button class="absolute bottom-6 left-6 right-6 py-3 bg-surface/80 backdrop-blur-md text-on-surface font-label text-[10px] uppercase tracking-[0.2em] opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">Quick Add</button>
-</div>
-<div class="space-y-2">
-<p class="font-label text-[10px] text-outline uppercase tracking-widest">Tailored Essentials</p>
-<h3 class="font-headline text-xl text-on-surface">Pleated Shadow Trouser</h3>
-<p class="font-body text-primary text-sm">$890</p>
-</div>
-</div>
-<!-- Product Card 4 -->
-<div class="product-card group cursor-pointer">
-<div class="relative aspect-[3/4] overflow-hidden bg-surface-container-low mb-6">
-<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Model wearing a minimalist charcoal grey mohair sweater" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDU6Fu-XucOIUpEsKPq2zaYu5lGjDdN7dJCDPq4wgErPGlsPppOT-u0VOKYXJRelReJY5vGZAO-lGC4eQPCJKvapT0MUBVIpD9EnUDUeViMVWBY8x60tR4ckl739cv8bIVM4TewpUQmOlu7TR1XgRUKAknzb9jDm4X8saK5dwcp-s230d2oWzT6ionvWidwDM9Wcf2QSdPQTevvK1ak0YnLLkRGVaCyL-UbRL4RgMyuMB3ycOvzRcFfi-6re-6NXSlCO50HR6TD-Kw"/>
-<button class="absolute bottom-6 left-6 right-6 py-3 bg-surface/80 backdrop-blur-md text-on-surface font-label text-[10px] uppercase tracking-[0.2em] opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">Quick Add</button>
-</div>
-<div class="space-y-2">
-<p class="font-label text-[10px] text-outline uppercase tracking-widest">The Archive</p>
-<h3 class="font-headline text-xl text-on-surface">Mohair Knit Scabbard</h3>
-<p class="font-body text-primary text-sm">$1,200</p>
-</div>
-</div>
-<!-- Product Card 5 -->
-<div class="product-card group cursor-pointer">
-<div class="relative aspect-[3/4] overflow-hidden bg-surface-container-low mb-6">
-<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="High luxury tailored black blazer with structured shoulders" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkZv-D0C5GaZPJ39toKvsSyC3wj2a6yIjotvKWbGtn1X-h_RbTdU8hlgN6n18sw5xrnTJNqdLL-JRWhIHPerzZ_xusPLDw33NnYiLD2QbDCnyyPJP7sgTlzQmbLvM-UI7H1jIQG4GRVjQbGawQLTLjMf1gjZF_8ZQAzMtqR8BCOkCa8JLsYWXHznu3NnJoM1Otz_wPjlTLApQBAL3L7Ie_grFEcWxJzGBv36PAAsLMSIEA3_mPFo7nCbnCGFA7IMDlX7UfwevpLSU"/>
-<button class="absolute bottom-6 left-6 right-6 py-3 bg-surface/80 backdrop-blur-md text-on-surface font-label text-[10px] uppercase tracking-[0.2em] opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">Quick Add</button>
-</div>
-<div class="space-y-2">
-<p class="font-label text-[10px] text-outline uppercase tracking-widest">Midnight Atelier</p>
-<h3 class="font-headline text-xl text-on-surface">Nocturnal Peak Blazer</h3>
-<p class="font-body text-primary text-sm">$1,850</p>
-</div>
-</div>
-<!-- Product Card 6 -->
-<div class="product-card group cursor-pointer">
-<div class="relative aspect-[3/4] overflow-hidden bg-surface-container-low mb-6">
-<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Floating white minimalist luxury dress on invisible model" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKRON8g23QQNQp09IDNDn87WEsOvKf8r_TIs8H3qvH_nMhNnYN4ZUrjhWX-zc6r0H1BHikg8_b7bSMcYMUpj3tX9E_wkgJSEK_GeG6dZGeC2nWluCCRkgZfJFSVVyH1DJKWhNBUc0RL3fbZqkVGQ03Am6OMQnfrBz_uveP1xkU-gRerPvB5l-5SblGofqUBKGaeyKQqr2DhpSI32GJSRQ_sQ5mYGHbliKUNen-8Sd-Tbm1LEdoWqSEucUzC14m267g9trFhv--7R8"/>
-<button class="absolute bottom-6 left-6 right-6 py-3 bg-surface/80 backdrop-blur-md text-on-surface font-label text-[10px] uppercase tracking-[0.2em] opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">Quick Add</button>
-</div>
-<div class="space-y-2">
-<p class="font-label text-[10px] text-outline uppercase tracking-widest">Sculptural Forms</p>
-<h3 class="font-headline text-xl text-on-surface">Void Drape Gown</h3>
-<p class="font-body text-primary text-sm">$4,200</p>
-</div>
-</div>
-</div>
-<!-- Pagination -->
-<div class="mt-32 flex justify-center items-center gap-12 border-t border-outline-variant/15 pt-12">
-<button class="font-label text-[10px] uppercase tracking-[0.2em] text-outline hover:text-on-surface transition-colors flex items-center gap-2">
-<span class="material-symbols-outlined text-[14px]">arrow_back_ios</span> Previous
-          </button>
-<div class="flex items-center gap-8 font-label text-[12px] tracking-widest">
-<span class="text-on-surface border-b border-primary pb-1">01</span>
-<span class="text-outline hover:text-on-surface cursor-pointer transition-colors">02</span>
-<span class="text-outline hover:text-on-surface cursor-pointer transition-colors">03</span>
-<span class="text-outline">...</span>
-<span class="text-outline hover:text-on-surface cursor-pointer transition-colors">08</span>
-</div>
-<button class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface hover:text-primary transition-colors flex items-center gap-2">
-            Next <span class="material-symbols-outlined text-[14px]">arrow_forward_ios</span>
-</button>
-</div>
-</div>
-</div>
-</main>
-<!-- Footer -->
-<footer class="bg-[#0c0e12] dark:bg-[#0c0e12] w-full mt-24">
-<div class="grid grid-cols-1 md:grid-cols-4 gap-12 px-20 py-24 border-t border-[#45464b]/15">
-<div class="space-y-8">
-<h2 class="text-lg font-bold tracking-widest text-[#e2e2e8]">NOCTURNAL</h2>
-<p class="font-['Manrope'] text-[12px] tracking-[0.05em] leading-relaxed text-[#909096]">
-          Curating the essence of the night. A study in shadow, silhouette, and the refined textures of high-fashion minimalism.
-        </p>
-</div>
-<div class="space-y-6">
-<h4 class="font-['Manrope'] text-[10px] uppercase tracking-[0.2em] text-[#e9c176]">Information</h4>
-<ul class="font-['Manrope'] text-[12px] tracking-[0.05em] leading-relaxed space-y-4 text-[#909096]">
-<li class="hover:text-[#e2e2e8] transition-all duration-300 cursor-pointer">Sustainability</li>
-<li class="hover:text-[#e2e2e8] transition-all duration-300 cursor-pointer">Shipping &amp; Returns</li>
-<li class="hover:text-[#e2e2e8] transition-all duration-300 cursor-pointer">Privacy Policy</li>
-<li class="hover:text-[#e2e2e8] transition-all duration-300 cursor-pointer">Contact Us</li>
-</ul>
-</div>
-<div class="space-y-6">
-<h4 class="font-['Manrope'] text-[10px] uppercase tracking-[0.2em] text-[#e9c176]">Newsletter</h4>
-<div class="space-y-4">
-<p class="font-['Manrope'] text-[12px] tracking-[0.05em] leading-relaxed text-[#909096]">Join our inner circle for exclusive archive access.</p>
-<div class="relative">
-<input class="w-full bg-transparent border-b border-[#45464b]/50 py-2 text-[10px] tracking-widest outline-none focus:border-[#e9c176] transition-colors placeholder:text-[#45464b]" placeholder="ENTER YOUR EMAIL" type="email"/>
-<button class="absolute right-0 bottom-2 text-[#e9c176]">
-<span class="material-symbols-outlined">arrow_forward</span>
-</button>
-</div>
-</div>
-</div>
-<div class="space-y-6 md:text-right">
-<h4 class="font-['Manrope'] text-[10px] uppercase tracking-[0.2em] text-[#e9c176]">Social</h4>
-<ul class="font-['Manrope'] text-[12px] tracking-[0.05em] leading-relaxed space-y-4 text-[#909096]">
-<li class="hover:text-[#e2e2e8] transition-all duration-300 cursor-pointer">Instagram</li>
-<li class="hover:text-[#e2e2e8] transition-all duration-300 cursor-pointer">Vogue Business</li>
-<li class="hover:text-[#e2e2e8] transition-all duration-300 cursor-pointer">Showroom</li>
-</ul>
-</div>
-</div>
-<div class="px-20 py-8 border-t border-[#45464b]/10 flex justify-between items-center">
-<p class="font-['Manrope'] text-[10px] tracking-[0.2em] text-[#45464b]">© 2024 NOCTURNAL CURATOR. ALL RIGHTS RESERVED.</p>
-<div class="flex gap-4">
-<span class="material-symbols-outlined text-[#45464b] text-lg">payments</span>
-<span class="material-symbols-outlined text-[#45464b] text-lg">token</span>
-</div>
-</div>
-</footer>
-</body></html>
+<body>
+
+    <h1>BlackFeel - Fest Collection</h1>
+    
+    <div class="product-grid" id="store-container">
+        </div>
+
+    <div class="modal-overlay" id="checkout-modal">
+        <div class="modal-content">
+            <h2>Delivery Details</h2>
+            <input type="text" id="cust-name" placeholder="Full Name" required>
+            <input type="email" id="cust-email" placeholder="Email Address" required>
+            <input type="tel" id="cust-phone" placeholder="Phone Number" required>
+            <textarea id="cust-address" rows="3" placeholder="Complete Delivery Address" required></textarea>
+            
+            <input type="hidden" id="temp-sku">
+            <input type="hidden" id="temp-price">
+            
+            <button onclick="processCheckout()">Proceed to Payment</button>
+            <button class="modal-close" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        // 1. Configuration: Matching your fixed filenames (already present in input file)
+        const productData = [
+            { id: 'D1', name: 'Travis', price: 999, img: 'mockups/D1Mockup.png' },
+            { id: 'D2', name: 'Paradise', price: 999, img: 'mockups/D2Mockup.jpg' },
+            { id: 'D3', name: 'Karan Aujla', price: 999, img: 'mockups/D3Mockup.png' },
+            { id: 'D4', name: 'Better Call Saul', price: 999, img: 'mockups/D4Mockup.png' }
+        ];
+
+        // 2. Load the Store - NO change in logic, only updated HTML template for new CSS
+        async function renderStore() {
+            const container = document.getElementById('store-container');
+            if (!container) return; // Guard
+            container.innerHTML = ''; // Clear existing
+
+            for (const p of productData) {
+                try {
+                    // Fetch real-time stock from Node.js (Port 3000)
+                    const response = await fetch(`http://localhost:3000/api/inventory/${p.id}`);
+                    const inventory = await response.json();
+
+                    // Filter variants with stock (Quantity > 0)
+                    const availableColors = [...new Set(inventory.filter(i => i.quantity > 0).map(i => i.color))];
+                    
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    
+                    // Construct inner HTML using standard IDs/hooks
+                    card.innerHTML = `
+                        <img src="${p.img}" alt="${p.name}" onerror="this.src=''">
+                        <h3>${p.name}</h3>
+                        <p>₹${p.price}</p>
+                        
+                        <label>Color:</label>
+                        <select id="color-${p.id}" onchange="updateSizes('${p.id}')">
+                            ${availableColors.map(c => `<option value="${c}">${c}</option>`).join('')}
+                        </select>
+
+                        <label>Size:</label>
+                        <select id="size-${p.id}">
+                            </select>
+
+                        <button onclick="payNow('${p.id}', ${p.price})">Buy Now</button>
+                    `;
+                    container.appendChild(card);
+                    
+                    // Set up initial dropdown state using standard function calls
+                    if(availableColors.length > 0) {
+                        updateSizes(p.id, inventory);
+                    } else {
+                        card.innerHTML += `<p style="color:red; font-weight:bold;">SOLD OUT</p>`;
+                        // Disable buttons/selects for sold out items
+                        card.querySelectorAll('select, button').forEach(el => el.disabled = true);
+                    }
+                } catch (err) {
+                    console.error("Failed to load inventory for " + p.id, err);
+                }
+            }
+        }
+
+        // 3. Dynamic Size Dropdown - NO change in logic/hooks/calls
+        async function updateSizes(designId, providedInventory = null) {
+            let inventory = providedInventory;
+            if (!inventory) {
+                try {
+                    const res = await fetch(`http://localhost:3000/api/inventory/${designId}`);
+                    inventory = await res.json();
+                } catch (err) {
+                    console.error("Update sizes inventory fetch failed", err);
+                    return;
+                }
+            }
+
+            const selectedColor = document.getElementById(`color-${designId}`).value;
+            const sizeDropdown = document.getElementById(`size-${designId}`);
+            
+            const availableSizes = inventory
+                .filter(item => item.color === selectedColor && item.quantity > 0)
+                .map(item => item.size);
+
+            sizeDropdown.innerHTML = availableSizes.map(s => `<option value="${s}">${s}</option>`).join('');
+        }
+
+        // --- Cart/Checkout Flow (Updated to capture details first) ---
+
+        // Open the details form modal - NO change in logical flow
+        function payNow(designId, price) {
+            const color = document.getElementById(`color-${designId}`).value;
+            const size = document.getElementById(`size-${designId}`).value;
+            
+            // Reconstruct SKU: TEE-[Size]-[WH/BL]-[DesignID] - Logic preserved
+            const colorCode = (color === 'White') ? 'WH' : 'BL';
+            const sku = `TEE-${size}-${colorCode}-${designId}`;
+
+            // Store choice temporarily in the hidden modal inputs - IDs preserved
+            document.getElementById('temp-sku').value = sku;
+            document.getElementById('temp-price').value = price;
+
+            // Open Modal Overlay - ID preserved
+            document.getElementById('checkout-modal').style.display = 'flex';
+        }
+
+        // Closes delivery details form
+        function closeModal() {
+            document.getElementById('checkout-modal').style.display = 'none';
+        }
+
+        // Handle form submission and initiate Razorpay checkout - NO change in logic/API calls/hooks
+        async function processCheckout() {
+            const sku = document.getElementById('temp-sku').value;
+            const price = document.getElementById('temp-price').value;
+            
+            // Capture customer details - IDs preserved
+            const customer = {
+                name: document.getElementById('cust-name').value,
+                email: document.getElementById('cust-email').value,
+                phone: document.getElementById('cust-phone').value,
+                address: document.getElementById('cust-address').value
+            };
+
+            // Basic validation preserved
+            if(!customer.name || !customer.email || !customer.phone || !customer.address) {
+                alert("Please fill in all delivery details.");
+                return;
+            }
+
+            try {
+                // Initiate order creation on Node.js backend - API hook preserved
+                const orderRes = await fetch('http://localhost:3000/api/create-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sku: sku, amount: price, customer: customer })
+                });
+                const order = await orderRes.json();
+
+                if (order.error) {
+                    alert(order.error);
+                    closeModal();
+                    return;
+                }
+
+                // Razorpay checkout options - IDs/prefills preserved
+                const options = {
+                    "key": "rzp_test_YOUR_ACTUAL_PUBLIC_KEY", // REMINDER: Put your real key here!
+                    "amount": order.amount,
+                    "currency": "INR",
+                    "name": "BlackFeel",
+                    "description": "Fest Collection Order",
+                    "order_id": order.id, // backend Order ID hook preserved
+                    "prefill": { // Customer details passed to Razorpay
+                        "name": customer.name,
+                        "email": customer.email,
+                        "contact": customer.phone
+                    },
+                    "handler": async function (response) {
+                        // Payment Success Handler - API verification hook preserved
+                        try {
+                            await fetch('http://localhost:3000/api/verify-payment', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ 
+                                    sku: sku, 
+                                    payment_id: response.razorpay_payment_id,
+                                    order_id: response.razorpay_order_id
+                                })
+                            });
+                            alert('Payment Successful! We have received your order.');
+                            window.location.reload(); // Success flow remains
+                        } catch (verificationErr) {
+                            console.error("Verification API failed", verificationErr);
+                            alert("Payment successful, but order update failed. Please contact support.");
+                        }
+                    }
+                };
+                const rzp = new Razorpay(options);
+                rzp.open();
+                closeModal(); // Hide custom form
+            } catch (err) {
+                alert("Something went wrong connecting to checkout. Please try again.");
+                console.error(err);
+            }
+        }
+
+        // --- Store Initialization ---
+        // Existing startup hook remains
+        document.addEventListener('DOMContentLoaded', renderStore);
+    </script>
+</body>
+</html>
