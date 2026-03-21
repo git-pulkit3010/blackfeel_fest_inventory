@@ -10,8 +10,21 @@ app.use(express.json());
 app.use(cors());
 
 const pool = new Pool({
-  connectionString: process.env.DB_URL_RENDER || `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`,
-  ssl: process.env.DB_URL_RENDER ? { rejectUnauthorized: false } : false,
+  connectionString: process.env.DB_URL_RENDER,
+  ssl: { rejectUnauthorized: false }
+});
+
+pool.query('SELECT NOW()')
+  .then(res => console.log('DB connected:', res.rows[0]))
+  .catch(err => console.error('DB connection error:', err));
+
+// Test database connection
+pool.connect((err, client, release) => {
+  if (err) {
+    return console.error('Error acquiring client', err.stack);
+  }
+  console.log('Successfully connected to PostgreSQL');
+  release();
 });
 
 const razorpay = new Razorpay({
@@ -19,39 +32,40 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-app.use(express.static('public')); // Add this before your routes
+app.use(express.static('public'));
 
 // 1. Get available variants for a design
 app.get('/api/inventory/:designCode', async (req, res) => {
   const { designCode } = req.params;
-  const result = await pool.query(
-    'SELECT size, color, sku, quantity FROM inventory WHERE design_code = $1 AND quantity > 0',
-    [designCode]
-  );
-  res.json(result.rows);
+  try {
+    const result = await pool.query(
+      'SELECT size, color, sku, quantity FROM inventory WHERE design_code = $1 AND quantity > 0',
+      [designCode]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Inventory Fetch Error:', err);
+    res.status(500).json({ error: 'Database query failed', details: err.message });
+  }
 });
 
 // 1.1 Get all available sizes across all designs
+// Get all available sizes (Fixed PostgreSQL DISTINCT error)
 app.get('/api/available-sizes', async (req, res) => {
   try {
-    const result = await pool.query(`
-      SELECT DISTINCT size 
-      FROM inventory 
-      WHERE quantity > 0 
-      ORDER BY 
-        CASE size
-          WHEN 'XS' THEN 1
-          WHEN 'S' THEN 2
-          WHEN 'M' THEN 3
-          WHEN 'L' THEN 4
-          WHEN 'XL' THEN 5
-          WHEN 'XXL' THEN 6
-          ELSE 7
-        END
-    `);
-    res.json(result.rows.map(r => r.size));
+    // 1. Just get the unique sizes, no SQL ORDER BY
+    const result = await pool.query('SELECT DISTINCT size FROM inventory');
+    
+    // 2. Extract the sizes into a flat array: ['S', 'M', 'L', 'XL']
+    let sizes = result.rows.map(row => row.size);
+
+    // 3. Sort them logically in JavaScript instead of SQL
+    const sizeOrder = { 'S': 1, 'M': 2, 'L': 3, 'XL': 4, 'XXL': 5 };
+    sizes.sort((a, b) => (sizeOrder[a] || 99) - (sizeOrder[b] || 99));
+
+    res.json(sizes);
   } catch (err) {
-    console.error(err);
+    console.error("Available Sizes Fetch Error:", err);
     res.status(500).json({ error: 'Failed to fetch sizes' });
   }
 });
@@ -184,5 +198,8 @@ app.post('/api/verify-payment', async (req, res) => {
   }
 });
 
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
 
 app.listen(process.env.PORT || 3000, () => console.log('Server running on port 3000'));

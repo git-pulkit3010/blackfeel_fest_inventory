@@ -231,16 +231,23 @@
             const res = await fetch('/api/available-sizes');
             let sizes = await res.json();
             
+            if (!Array.isArray(sizes)) {
+                console.error("Sizes response is not an array:", sizes);
+                return;
+            }
+
             // Explicitly sort sizes in logical order: S, M, L, XL
             const order = ['S', 'M', 'L', 'XL', 'XXL'];
             sizes.sort((a, b) => order.indexOf(a) - order.indexOf(b));
 
             const container = document.getElementById('size-filter-container');
-            container.innerHTML = sizes.map(size => `
-                <button onclick="toggleSizeFilter('${size}')" id="size-btn-${size}" class="size-filter-btn h-10 border border-outline-variant text-[10px] font-label hover:border-primary transition-colors text-on-surface">
-                    ${size}
-                </button>
-            `).join('');
+            if (container) {
+                container.innerHTML = sizes.map(size => `
+                    <button onclick="toggleSizeFilter('${size}')" id="size-btn-${size}" class="size-filter-btn h-10 border border-outline-variant text-[10px] font-label hover:border-primary transition-colors text-on-surface">
+                        ${size}
+                    </button>
+                `).join('');
+            }
         } catch (err) {
             console.error("Failed to load sizes", err);
         }
