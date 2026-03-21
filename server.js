@@ -10,17 +10,16 @@ app.use(express.json());
 app.use(cors());
 
 const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
+  connectionString: process.env.DB_URL_RENDER || `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`,
+  ssl: process.env.DB_URL_RENDER ? { rejectUnauthorized: false } : false,
 });
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
+
+app.use(express.static('public')); // Add this before your routes
 
 // 1. Get available variants for a design
 app.get('/api/inventory/:designCode', async (req, res) => {
@@ -185,4 +184,5 @@ app.post('/api/verify-payment', async (req, res) => {
   }
 });
 
-app.listen(3000, () => console.log('Server running on port 3000'));
+
+app.listen(process.env.PORT || 3000, () => console.log('Server running on port 3000'));

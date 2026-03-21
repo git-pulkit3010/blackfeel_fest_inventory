@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>BlackFeel Fest Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Manrope:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "on-primary-fixed-variant": "#5d4201",
+                "primary": "#e9c176",
+                "on-tertiary-fixed-variant": "#524436",
+                "outline": "#909096",
+                "on-background": "#e2e2e8",
+                "on-tertiary": "#3b2e21",
+                "tertiary": "#d7c3b0",
+                "surface-container": "#1e2024",
+                "on-surface": "#e2e2e8",
+                "tertiary-container": "#1c1207",
+                "tertiary-fixed-dim": "#d7c3b0",
+                "on-secondary-fixed": "#181c20",
+                "primary-fixed": "#ffdea5",
+                "error": "#ffb4ab",
+                "secondary-fixed-dim": "#c4c6cc",
+                "secondary-fixed": "#e0e2e8",
+                "on-error": "#690005",
+                "surface": "#111317",
+                "on-surface-variant": "#c6c6cc",
+                "outline-variant": "#45464b",
+                "primary-container": "#1d1200",
+                "secondary": "#c4c6cc",
+                "surface-container-highest": "#333539",
+                "on-secondary-fixed-variant": "#44474b",
+                "on-error-container": "#ffdad6",
+                "on-tertiary-container": "#8d7c6b",
+                "primary-fixed-dim": "#e9c176",
+                "on-tertiary-fixed": "#241a0e",
+                "on-primary": "#412d00",
+                "surface-container-lowest": "#0c0e12",
+                "background": "#111317",
+                "on-secondary-container": "#b6b8be",
+                "secondary-container": "#46494e",
+                "on-primary-container": "#9b7937",
+                "surface-variant": "#333539",
+                "surface-tint": "#e9c176",
+                "on-primary-fixed": "#261900",
+                "surface-container-low": "#1a1c20",
+                "inverse-surface": "#e2e2e8",
+                "on-secondary": "#2d3135",
+                "inverse-on-surface": "#2f3035",
+                "surface-dim": "#111317",
+                "surface-container-high": "#282a2e",
+                "surface-bright": "#37393e",
+                "inverse-primary": "#775a19",
+                "error-container": "#93000a",
+                "tertiary-fixed": "#f4dfcb"
+              },
+              fontFamily: {
+                "headline": ["Noto Serif"],
+                "body": ["Manrope"],
+                "label": ["Manrope"]
+              },
+              borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+            },
+          },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+          font-size: 20px;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #111317;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #45464b;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary/30 selection:text-primary custom-scrollbar">
+
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#111317]/60 backdrop-blur-xl dark:bg-[#111317]/60 shadow-[0px_0px_40px_rgba(38,25,0,0.06)] font-['Noto_Serif'] antialiased tracking-tight">
+    <div class="flex justify-center items-center w-full px-12 py-6 max-w-[1920px] mx-auto">
+        <div class="flex items-center">
+            <a class="text-2xl font-bold tracking-[0.2em] uppercase text-[#e2e2e8] dark:text-[#e2e2e8]" href="#">BLACKFEEL</a>
+        </div>
+    </div>
+</nav>
+
+<main class="pt-40 min-h-screen px-12 max-w-[1920px] mx-auto pb-24">
+    <!-- Header Section -->
+    <header class="mb-16">
+        <h1 class="font-headline text-5xl md:text-6xl tracking-tighter mb-4 text-on-surface">Fest Collection</h1>
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <p class="text-tertiary max-w-xl font-body text-lg leading-relaxed">
+                Exploring the interplay of shadow and structure. Our latest collection features sculptural silhouettes crafted for the modern night.
+            </p>
+            <div class="flex items-center gap-4">
+                <span class="font-label text-[10px] uppercase tracking-[0.2em] text-outline">Sort by</span>
+                <div class="relative group">
+                    <button class="flex items-center gap-2 border-b border-outline-variant pb-1 font-label text-[12px] uppercase tracking-[0.1em] text-on-surface">
+                        Newest <span class="material-symbols-outlined text-[14px]">expand_more</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-col md:flex-row gap-16">
+        <!-- Sidebar Filters -->
+        <aside class="w-full md:w-64 flex-shrink-0">
+            <div class="sticky top-40 space-y-12">
+                <!-- Filter Group: Collection -->
+                <section>
+                    <h3 class="font-label text-[10px] uppercase tracking-[0.2em] text-primary mb-6">Collection</h3>
+                    <ul class="space-y-4 font-label text-[12px] tracking-widest text-outline">
+                        <li class="flex items-center justify-between text-on-surface font-semibold">
+                            <span>Fest 2026</span>
+                        </li>
+                    </ul>
+                </section>
+                <!-- Filter Group: Size -->
+                <section>
+                    <h3 class="font-label text-[10px] uppercase tracking-[0.2em] text-primary mb-6">Size</h3>
+                    <div id="size-filter-container" class="grid grid-cols-4 gap-2">
+                        <!-- Dynamic size filters will be loaded here -->
+                    </div>
+                </section>
+                <!-- Filter Group: Color -->
+                <section>
+                    <h3 class="font-label text-[10px] uppercase tracking-[0.2em] text-primary mb-6">Color</h3>
+                    <div id="color-filter-container" class="flex flex-wrap gap-3">
+                        <button onclick="toggleColorFilter('Black')" id="color-btn-Black" class="color-filter-btn w-6 h-6 rounded-full bg-black border border-outline-variant hover:border-primary transition-colors" title="Black"></button>
+                        <button onclick="toggleColorFilter('White')" id="color-btn-White" class="color-filter-btn w-6 h-6 rounded-full bg-white border border-outline-variant hover:border-primary transition-colors" title="White"></button>
+                    </div>
+                </section>
+
+                <button onclick="clearFilters()" class="font-label text-[10px] uppercase tracking-[0.2em] text-outline hover:text-primary transition-colors flex items-center gap-2 pt-4">
+                    <span class="material-symbols-outlined text-[14px]">close</span> Clear Filters
+                </button>
+            </div>
+        </aside>
+
+        <!-- Product Grid -->
+        <div class="flex-grow">
+            <div id="store-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
+                <!-- Products will be rendered here -->
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Checkout Modal -->
+<div id="checkout-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-surface/80 backdrop-blur-sm px-4">
+    <div class="bg-surface-container border border-outline-variant p-8 w-full max-w-md space-y-6">
+        <h2 class="font-headline text-2xl text-on-surface text-center uppercase tracking-widest">Delivery Details</h2>
+        <div class="space-y-4">
+            <input type="text" id="cust-name" placeholder="Full Name" required class="w-full bg-transparent border-b border-outline-variant py-2 text-[12px] tracking-widest outline-none focus:border-primary transition-colors text-on-surface placeholder:text-outline">
+            <input type="email" id="cust-email" placeholder="Email Address" required class="w-full bg-transparent border-b border-outline-variant py-2 text-[12px] tracking-widest outline-none focus:border-primary transition-colors text-on-surface placeholder:text-outline">
+            <input type="tel" id="cust-phone" placeholder="Phone Number" required class="w-full bg-transparent border-b border-outline-variant py-2 text-[12px] tracking-widest outline-none focus:border-primary transition-colors text-on-surface placeholder:text-outline">
+            <textarea id="cust-address" rows="3" placeholder="Complete Delivery Address" required class="w-full bg-transparent border-b border-outline-variant py-2 text-[12px] tracking-widest outline-none focus:border-primary transition-colors text-on-surface placeholder:text-outline resize-none"></textarea>
+        </div>
+        
+        <input type="hidden" id="temp-sku">
+        <input type="hidden" id="temp-price">
+        
+        <div class="flex flex-col gap-4 pt-4">
+            <button onclick="processCheckout()" class="w-full py-3 bg-primary text-on-primary font-label text-[10px] uppercase tracking-[0.2em] hover:bg-primary-fixed-dim transition-colors">Proceed to Payment</button>
+            <button onclick="closeModal()" class="w-full py-3 border border-outline-variant text-on-surface font-label text-[10px] uppercase tracking-[0.2em] hover:bg-surface-container-high transition-colors">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="bg-[#0c0e12] dark:bg-[#0c0e12] w-full mt-24">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 px-20 py-24 border-t border-[#45464b]/15">
+        <div class="space-y-8">
+            <h2 class="text-lg font-bold tracking-widest text-[#e2e2e8]">BLACKFEEL</h2>
+            <p class="font-['Manrope'] text-[12px] tracking-[0.05em] leading-relaxed text-[#909096]">
+                Curating the essence of the night. A study in shadow, silhouette, and the refined textures of high-fashion minimalism.
+            </p>
+        </div>
+        <div class="flex flex-col md:flex-row gap-12 md:justify-end">
+            <div class="space-y-6">
+                <h4 class="font-['Manrope'] text-[10px] uppercase tracking-[0.2em] text-[#e9c176]">Social</h4>
+                <ul class="font-['Manrope'] text-[12px] tracking-[0.05em] leading-relaxed space-y-4 text-[#909096]">
+                    <li class="hover:text-[#e2e2e8] transition-all duration-300">
+                        <a href="https://www.instagram.com/blackweave.co/" target="_blank" class="block cursor-pointer">Instagram</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="space-y-6">
+                <h4 class="font-['Manrope'] text-[10px] uppercase tracking-[0.2em] text-[#e9c176]">About Us</h4>
+                <ul class="font-['Manrope'] text-[12px] tracking-[0.05em] leading-relaxed space-y-4 text-[#909096]">
+                    <li class="hover:text-[#e2e2e8] transition-all duration-300 cursor-pointer">Our Story</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="px-20 py-8 border-t border-[#45464b]/10 flex justify-between items-center">
+        <p class="font-['Manrope'] text-[10px] tracking-[0.2em] text-[#45464b]">© 2024 BLACKFEEL. ALL RIGHTS RESERVED.</p>
+    </div>
+</footer>
+
+<script>
+    const productData = [
+        { id: 'D1', name: 'Travis', price: 999, img: 'mockups/D1Mockup.png' },
+        { id: 'D2', name: 'Paradise', price: 999, img: 'mockups/D2Mockup.jpg' },
+        { id: 'D3', name: 'Karan Aujla', price: 999, img: 'mockups/D3Mockup.png' },
+        { id: 'D4', name: 'Better Call Saul', price: 999, img: 'mockups/D4Mockup.png' }
+    ];
+
+    let selectedSizeFilter = null;
+    let selectedColorFilter = null;
+    let inventoryMap = {};
+
+    async function loadSizes() {
+        try {
+            const res = await fetch('/api/available-sizes');
+            let sizes = await res.json();
+            
+            // Explicitly sort sizes in logical order: S, M, L, XL
+            const order = ['S', 'M', 'L', 'XL', 'XXL'];
+            sizes.sort((a, b) => order.indexOf(a) - order.indexOf(b));
+
+            const container = document.getElementById('size-filter-container');
+            container.innerHTML = sizes.map(size => `
+                <button onclick="toggleSizeFilter('${size}')" id="size-btn-${size}" class="size-filter-btn h-10 border border-outline-variant text-[10px] font-label hover:border-primary transition-colors text-on-surface">
+                    ${size}
+                </button>
+            `).join('');
+        } catch (err) {
+            console.error("Failed to load sizes", err);
+        }
+    }
+
+    function toggleSizeFilter(size) {
+        if (selectedSizeFilter === size) {
+            selectedSizeFilter = null;
+        } else {
+            selectedSizeFilter = size;
+        }
+
+        // Update UI
+        document.querySelectorAll('.size-filter-btn').forEach(btn => {
+            btn.classList.remove('border-primary', 'text-primary');
+            btn.classList.add('border-outline-variant', 'text-on-surface');
+        });
+
+        if (selectedSizeFilter) {
+            const activeBtn = document.getElementById(`size-btn-${selectedSizeFilter}`);
+            activeBtn.classList.remove('border-outline-variant', 'text-on-surface');
+            activeBtn.classList.add('border-primary', 'text-primary');
+        }
+
+        renderStore();
+    }
+
+    function toggleColorFilter(color) {
+        if (selectedColorFilter === color) {
+            selectedColorFilter = null;
+        } else {
+            selectedColorFilter = color;
+        }
+
+        // Update UI
+        document.querySelectorAll('.color-filter-btn').forEach(btn => {
+            btn.classList.remove('ring-2', 'ring-primary', 'ring-offset-2', 'ring-offset-surface');
+        });
+
+        if (selectedColorFilter) {
+            const activeBtn = document.getElementById(`color-btn-${selectedColorFilter}`);
+            activeBtn.classList.add('ring-2', 'ring-primary', 'ring-offset-2', 'ring-offset-surface');
+        }
+
+        renderStore();
+    }
+
+    function clearFilters() {
+        selectedSizeFilter = null;
+        selectedColorFilter = null;
+
+        // Reset Size UI
+        document.querySelectorAll('.size-filter-btn').forEach(btn => {
+            btn.classList.remove('border-primary', 'text-primary');
+            btn.classList.add('border-outline-variant', 'text-on-surface');
+        });
+
+        // Reset Color UI
+        document.querySelectorAll('.color-filter-btn').forEach(btn => {
+            btn.classList.remove('ring-2', 'ring-primary', 'ring-offset-2', 'ring-offset-surface');
+        });
+
+        renderStore();
+    }
+
+    async function fetchInventoryForProducts() {
+        for (const p of productData) {
+            try {
+                const res = await fetch(`/api/inventory/${p.id}`);
+                inventoryMap[p.id] = await res.json();
+            } catch (err) {
+                console.error(`Failed inventory fetch for ${p.id}`, err);
+                inventoryMap[p.id] = [];
+            }
+        }
+    }
+
+    async function renderStore() {
+        const container = document.getElementById('store-container');
+        if (!container) return;
+        container.innerHTML = '';
+
+        for (const p of productData) {
+            const inventory = inventoryMap[p.id] || [];
+            
+            // Refined Filtering Logic: Intersection of size and color
+            const passesFilter = inventory.some(i => {
+                const matchesSize = selectedSizeFilter ? (i.size === selectedSizeFilter) : true;
+                const matchesColor = selectedColorFilter ? (i.color === selectedColorFilter) : true;
+                return matchesSize && matchesColor && i.quantity > 0;
+            });
+
+            if (!passesFilter) continue;
+
+            // Only show colors available for selected size (if any)
+            const filteredInventory = selectedSizeFilter 
+                ? inventory.filter(i => i.size === selectedSizeFilter && i.quantity > 0)
+                : inventory.filter(i => i.quantity > 0);
+            
+            const availableColors = [...new Set(filteredInventory.map(i => i.color))];
+            
+            const card = document.createElement('div');
+            card.className = 'product-card group cursor-pointer';
+            
+            card.innerHTML = `
+                <div class="relative aspect-[3/4] overflow-hidden bg-surface-container-low mb-6">
+                    <img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="${p.img}" alt="${p.name}" onerror="this.src=''">
+                    <button id="buy-btn-${p.id}" onclick="payNow('${p.id}', ${p.price})" class="absolute bottom-6 left-6 right-6 py-3 bg-surface/80 backdrop-blur-md text-on-surface font-label text-[10px] uppercase tracking-[0.2em] opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">Buy Now</button>
+                </div>
+                <div class="space-y-4">
+                    <div class="space-y-1">
+                        <p class="font-label text-[10px] text-outline uppercase tracking-widest">Fest Collection</p>
+                        <h3 class="font-headline text-xl text-on-surface">${p.name}</h3>
+                        <p class="font-body text-primary text-sm">₹${p.price}</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="font-label text-[8px] text-outline uppercase tracking-[0.2em]">Color</label>
+                            <select id="color-${p.id}" onchange="updateSizes('${p.id}')" class="w-full bg-transparent border-b border-outline-variant py-1 text-[10px] tracking-widest outline-none focus:border-primary transition-colors text-on-surface">
+                                ${availableColors.map(c => `<option value="${c}" class="bg-surface" ${c === selectedColorFilter ? 'selected' : ''}>${c}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="font-label text-[8px] text-outline uppercase tracking-[0.2em]">Size</label>
+                            <select id="size-${p.id}" class="w-full bg-transparent border-b border-outline-variant py-1 text-[10px] tracking-widest outline-none focus:border-primary transition-colors text-on-surface">
+                            </select>
+                        </div>
+                    </div>
+                    <div id="sold-out-${p.id}" class="hidden">
+                        <p class="text-error font-label text-[10px] uppercase tracking-widest font-bold">SOLD OUT</p>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+            
+            if(availableColors.length > 0) {
+                updateSizes(p.id);
+            } else {
+                document.getElementById(`sold-out-${p.id}`).classList.remove('hidden');
+                card.querySelectorAll('select, button').forEach(el => el.disabled = true);
+            }
+        }
+    }
+
+    async function updateSizes(designId) {
+        const inventory = inventoryMap[designId] || [];
+        const selectedColor = document.getElementById(`color-${designId}`).value;
+        const sizeDropdown = document.getElementById(`size-${designId}`);
+        
+        const availableSizes = inventory
+            .filter(item => item.color === selectedColor && item.quantity > 0)
+            .map(item => item.size);
+
+        sizeDropdown.innerHTML = availableSizes.map(s => `<option value="${s}" class="bg-surface" ${s === selectedSizeFilter ? 'selected' : ''}>${s}</option>`).join('');
+    }
+
+    function payNow(designId, price) {
+        const colorSelect = document.getElementById(`color-${designId}`);
+        const sizeSelect = document.getElementById(`size-${designId}`);
+        
+        if(!colorSelect.value || !sizeSelect.value) {
+            alert("Please select color and size.");
+            return;
+        }
+
+        const color = colorSelect.value;
+        const size = sizeSelect.value;
+        const colorCode = (color === 'White') ? 'WH' : 'BL';
+        const sku = `TEE-${size}-${colorCode}-${designId}`;
+
+        document.getElementById('temp-sku').value = sku;
+        document.getElementById('temp-price').value = price;
+
+        const modal = document.getElementById('checkout-modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('checkout-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    async function processCheckout() {
+        const sku = document.getElementById('temp-sku').value;
+        const price = document.getElementById('temp-price').value;
+        const customer = {
+            name: document.getElementById('cust-name').value,
+            email: document.getElementById('cust-email').value,
+            phone: document.getElementById('cust-phone').value,
+            address: document.getElementById('cust-address').value
+        };
+
+        if(!customer.name || !customer.email || !customer.phone || !customer.address) {
+            alert("Please fill in all delivery details.");
+            return;
+        }
+
+        try {
+            const orderRes = await fetch('/api/create-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sku: sku, amount: price, customer: customer })
+            });
+            const order = await orderRes.json();
+
+            if (order.error) {
+                alert(order.error);
+                closeModal();
+                return;
+            }
+
+            const options = {
+                "key": "rzp_test_STnWrgk62G9Kl6", 
+                "amount": order.amount,
+                "currency": "INR",
+                "name": "BlackFeel",
+                "description": "Fest Collection Order",
+                "order_id": order.id,
+                "prefill": {
+                    "name": customer.name,
+                    "email": customer.email,
+                    "contact": customer.phone
+                },
+                "handler": async function (response) {
+                    try {
+                        await fetch('/api/verify-payment', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ 
+                                sku: sku, 
+                                payment_id: response.razorpay_payment_id,
+                                order_id: response.razorpay_order_id,
+                                payment_signature: response.razorpay_signature,
+                                amount: price,
+                                customer: customer
+                            })
+                        });
+                        alert('Payment Successful! We have received your order.');
+                        window.location.reload();
+                    } catch (verificationErr) {
+                        console.error("Verification API failed", verificationErr);
+                        alert("Payment successful, but order update failed. Please contact support.");
+                    }
+                }
+            };
+            const rzp = new Razorpay(options);
+            rzp.open();
+            closeModal();
+        } catch (err) {
+            alert("Something went wrong connecting to checkout. Please try again.");
+            console.error(err);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        await loadSizes();
+        await fetchInventoryForProducts();
+        renderStore();
+    });
+</script>
+</body>
+</html>
