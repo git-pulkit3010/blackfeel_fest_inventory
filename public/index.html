@@ -251,6 +251,15 @@
                 Black: ['mockups/D4MockupBlack.jpeg'],
                 White: ['mockups/D4MockupWhite.png']
             }
+        },
+        { 
+            id: 'D5', 
+            name: 'Company Logo', 
+            price: 999, 
+            images: {
+                Black: ['mockups/D5MockupBlack.jpeg'],
+                White: ['mockups/D5MockupWhite.jpeg']
+            }
         }
     ];
 
@@ -419,7 +428,7 @@
             card.innerHTML = `
                 <div class="relative aspect-[3/4] overflow-hidden bg-surface-container-low mb-6">
                     <img id="img-${p.id}" class="w-full h-full object-cover transition-all duration-700 group-hover:scale-105" src="${imagesToShow[0]}" alt="${p.name}" onerror="this.src=''">
-                    <button id="buy-btn-${p.id}" onclick="payNow('${p.id}', ${p.price})" class="absolute bottom-6 left-6 right-6 py-3 bg-surface/80 backdrop-blur-md text-on-surface font-label text-[10px] uppercase tracking-[0.2em] opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">Buy Now</button>
+                    <button id="buy-btn-${p.id}" onclick="payNow('${p.id}', ${p.price})" class="absolute bottom-6 left-6 right-6 py-3 bg-[#C1FFC1]/80 backdrop-blur-md text-[#111317] font-label text-[10px] uppercase tracking-[0.2em] opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 hover:bg-[#C1FFC1] hover:scale-105">Buy Now</button>
                 </div>
                 <div class="space-y-4">
                     <div class="space-y-1">
