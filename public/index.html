@@ -216,15 +216,48 @@
 
 <script>
     const productData = [
-        { id: 'D1', name: 'Travis', price: 999, img: 'mockups/D1Mockup.png' },
-        { id: 'D2', name: 'Paradise', price: 999, img: 'mockups/D2Mockup.jpg' },
-        { id: 'D3', name: 'Karan Aujla', price: 999, img: 'mockups/D3Mockup.png' },
-        { id: 'D4', name: 'Better Call Saul', price: 999, img: 'mockups/D4Mockup.png' }
+        { 
+            id: 'D1', 
+            name: 'Travis', 
+            price: 999, 
+            images: {
+                Black: ['mockups/D1MockupBlack.jpeg'],
+                White: ['mockups/D1MockupWhite.png']
+            }
+        },
+        { 
+            id: 'D2', 
+            name: 'Paradise', 
+            price: 999, 
+            images: {
+                Black: ['mockups/D2MockupBlackFront.jpeg', 'mockups/D2MockupBlackBack.jpeg'],
+                White: ['mockups/D2WhiteFrontBack.jpeg']
+            }
+        },
+        { 
+            id: 'D3', 
+            name: 'Karan Aujla', 
+            price: 999, 
+            images: {
+                Black: ['mockups/D3MockupBlackFront.jpeg', 'mockups/D3MockupBlackBack.jpeg'],
+                White: ['mockups/D3MockupWhiteFront.jpeg', 'mockups/D3MockupWhiteBack.jpeg']
+            }
+        },
+        { 
+            id: 'D4', 
+            name: 'Better Call Saul', 
+            price: 999, 
+            images: {
+                Black: ['mockups/D4MockupBlack.jpeg'],
+                White: ['mockups/D4MockupWhite.png']
+            }
+        }
     ];
 
     let selectedSizeFilter = null;
     let selectedColorFilter = null;
     let inventoryMap = {};
+    let slideshowIntervals = {};
 
     async function loadSizes() {
         try {
@@ -325,10 +358,34 @@
         }
     }
 
+    function startSlideshow(designId, images) {
+        if (images.length <= 1) return;
+        
+        let currentIndex = 0;
+        const imgElement = document.getElementById(`img-${designId}`);
+        
+        if (slideshowIntervals[designId]) clearInterval(slideshowIntervals[designId]);
+        
+        slideshowIntervals[designId] = setInterval(() => {
+            currentIndex = (currentIndex + 1) % images.length;
+            if (imgElement) {
+                imgElement.style.opacity = '0';
+                setTimeout(() => {
+                    imgElement.src = images[currentIndex];
+                    imgElement.style.opacity = '1';
+                }, 300);
+            }
+        }, 3000);
+    }
+
     async function renderStore() {
         const container = document.getElementById('store-container');
         if (!container) return;
         container.innerHTML = '';
+
+        // Clear existing intervals
+        Object.values(slideshowIntervals).forEach(clearInterval);
+        slideshowIntervals = {};
 
         for (const p of productData) {
             const inventory = inventoryMap[p.id] || [];
@@ -349,12 +406,19 @@
             
             const availableColors = [...new Set(filteredInventory.map(i => i.color))];
             
+            // Determine active color for image display
+            const activeColor = selectedColorFilter && availableColors.includes(selectedColorFilter) 
+                ? selectedColorFilter 
+                : availableColors[0];
+
+            const imagesToShow = p.images[activeColor] || [p.img];
+
             const card = document.createElement('div');
             card.className = 'product-card group cursor-pointer';
             
             card.innerHTML = `
                 <div class="relative aspect-[3/4] overflow-hidden bg-surface-container-low mb-6">
-                    <img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="${p.img}" alt="${p.name}" onerror="this.src=''">
+                    <img id="img-${p.id}" class="w-full h-full object-cover transition-all duration-700 group-hover:scale-105" src="${imagesToShow[0]}" alt="${p.name}" onerror="this.src=''">
                     <button id="buy-btn-${p.id}" onclick="payNow('${p.id}', ${p.price})" class="absolute bottom-6 left-6 right-6 py-3 bg-surface/80 backdrop-blur-md text-on-surface font-label text-[10px] uppercase tracking-[0.2em] opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">Buy Now</button>
                 </div>
                 <div class="space-y-4">
@@ -367,8 +431,8 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-1">
                             <label class="font-label text-[8px] text-outline uppercase tracking-[0.2em]">Color</label>
-                            <select id="color-${p.id}" onchange="updateSizes('${p.id}')" class="w-full bg-transparent border-b border-outline-variant py-1 text-[10px] tracking-widest outline-none focus:border-primary transition-colors text-on-surface">
-                                ${availableColors.map(c => `<option value="${c}" class="bg-surface" ${c === selectedColorFilter ? 'selected' : ''}>${c}</option>`).join('')}
+                            <select id="color-${p.id}" onchange="handleColorChange('${p.id}')" class="w-full bg-transparent border-b border-outline-variant py-1 text-[10px] tracking-widest outline-none focus:border-primary transition-colors text-on-surface">
+                                ${availableColors.map(c => `<option value="${c}" class="bg-surface" ${c === activeColor ? 'selected' : ''}>${c}</option>`).join('')}
                             </select>
                         </div>
                         <div class="space-y-1">
@@ -386,11 +450,32 @@
             
             if(availableColors.length > 0) {
                 updateSizes(p.id);
+                if (imagesToShow.length > 1) {
+                    startSlideshow(p.id, imagesToShow);
+                }
             } else {
                 document.getElementById(`sold-out-${p.id}`).classList.remove('hidden');
                 card.querySelectorAll('select, button').forEach(el => el.disabled = true);
             }
         }
+    }
+
+    function handleColorChange(designId) {
+        const selectedColor = document.getElementById(`color-${designId}`).value;
+        const p = productData.find(item => item.id === designId);
+        const imagesToShow = p.images[selectedColor] || [];
+        const imgElement = document.getElementById(`img-${designId}`);
+        
+        if (imgElement && imagesToShow.length > 0) {
+            imgElement.src = imagesToShow[0];
+            if (imagesToShow.length > 1) {
+                startSlideshow(designId, imagesToShow);
+            } else if (slideshowIntervals[designId]) {
+                clearInterval(slideshowIntervals[designId]);
+            }
+        }
+        
+        updateSizes(designId);
     }
 
     async function updateSizes(designId) {
