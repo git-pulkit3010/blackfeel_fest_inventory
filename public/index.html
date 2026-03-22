@@ -105,7 +105,7 @@
         <h1 class="font-headline text-5xl md:text-6xl tracking-tighter mb-4 text-on-surface">Fest Collection</h1>
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <p class="text-tertiary max-w-xl font-body text-lg leading-relaxed">
-                Exploring the interplay of shadow and structure. Our latest collection features sculptural silhouettes crafted for the modern night.
+                Exploring the intersection of premium textile and cultural legacy. Our 2026 collection features boxy, sculptural fits designed to be the loudest piece in the room without saying a word.
             </p>
             <div class="flex items-center gap-4">
                 <span class="font-label text-[10px] uppercase tracking-[0.2em] text-outline">Sort by</span>
@@ -239,7 +239,7 @@
             name: 'Karan Aujla', 
             price: 999, 
             images: {
-                Black: ['mockups/D3MockupBlackFront.jpeg', 'mockups/D3MockupBlackBack.jpeg'],
+                Black: ['mockups/D3MockupBlackFront.jpeg', 'mockups/D3MockupBlackBack.png'],
                 White: ['mockups/D3MockupWhiteFront.jpeg', 'mockups/D3MockupWhiteBack.jpeg']
             }
         },
@@ -491,12 +491,12 @@
         const inventory = inventoryMap[designId] || [];
         const selectedColor = document.getElementById(`color-${designId}`).value;
         const sizeDropdown = document.getElementById(`size-${designId}`);
-        
+
         const availableSizes = inventory
             .filter(item => item.color === selectedColor && item.quantity > 0)
             .map(item => item.size);
 
-        sizeDropdown.innerHTML = availableSizes.map(s => `<option value="${s}" class="bg-surface" ${s === selectedSizeFilter ? 'selected' : ''}>${s}</option>`).join('');
+        sizeDropdown.innerHTML = availableSizes.map(s => `<option value="${s}" class="bg-surface">${s}</option>`).join('');
     }
 
     function payNow(designId, price) {
