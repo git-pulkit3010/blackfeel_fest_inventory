@@ -87,6 +87,88 @@
         .custom-scrollbar::-webkit-scrollbar-thumb {
           background: #45464b;
         }
+        /* Slider Controls */
+        .slider-container {
+          position: relative;
+          width: 100%;
+          height: 100%;
+        }
+        .slider-wrapper {
+          display: flex;
+          transition: transform 0.4s ease-out;
+          width: 100%;
+          height: 100%;
+        }
+        .slider-wrapper img {
+          min-width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        .slider-btn {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          background: rgba(17, 19, 23, 0.6);
+          backdrop-filter: blur(8px);
+          border: 1px solid rgba(226, 226, 232, 0.2);
+          color: #e2e2e8;
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          opacity: 0;
+          transition: all 0.3s ease;
+          z-index: 10;
+        }
+        .slider-btn:hover {
+          background: rgba(233, 193, 118, 0.9);
+          color: #111317;
+          border-color: #e9c176;
+        }
+        .slider-btn.prev {
+          left: 12px;
+        }
+        .slider-btn.next {
+          right: 12px;
+        }
+        .product-card:hover .slider-btn,
+        .slider-container:active .slider-btn {
+          opacity: 1;
+        }
+        /* Always show slider buttons on mobile/touch devices */
+        @media (hover: none) and (pointer: coarse) {
+          .slider-btn {
+            opacity: 1;
+          }
+        }
+        .slider-dots {
+          position: absolute;
+          bottom: 80px;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          gap: 8px;
+          z-index: 10;
+        }
+        .slider-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: rgba(226, 226, 232, 0.4);
+          border: none;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        .slider-dot.active {
+          background: #e9c176;
+          transform: scale(1.2);
+        }
+        .slider-dot:hover {
+          background: rgba(233, 193, 118, 0.8);
+        }
     </style>
 </head>
 <body class="bg-surface text-on-surface font-body selection:bg-primary/30 selection:text-primary custom-scrollbar">
@@ -211,7 +293,7 @@
         </div>
     </div>
     <div class="px-20 py-8 border-t border-[#45464b]/10 flex justify-between items-center">
-        <p class="font-['Manrope'] text-[10px] tracking-[0.2em] text-[#45464b]">© 2024 BLACKFEEL. ALL RIGHTS RESERVED.</p>
+        <p class="font-['Manrope'] text-[10px] tracking-[0.2em] text-[#45464b]">© 2025 BLACKFEEL PVT LTD. ALL RIGHTS RESERVED.</p>
     </div>
 </footer>
 
@@ -226,13 +308,13 @@
                 White: ['mockups/D1MockupWhite.png']
             }
         },
-        { 
-            id: 'D2', 
-            name: 'Paradise', 
-            price: 999, 
+        {
+            id: 'D2',
+            name: 'Paradise',
+            price: 999,
             images: {
                 Black: ['mockups/D2MockupBlackFront.jpeg', 'mockups/D2MockupBlackBack.jpeg'],
-                White: ['mockups/D2WhiteFrontBack.jpeg']
+                White: ['mockups/D2WhiteFront.jpeg', 'mockups/D2WhiteBack.jpeg']
             }
         },
         { 
@@ -267,7 +349,7 @@
     let selectedSizeFilter = null;
     let selectedColorFilter = null;
     let inventoryMap = {};
-    let slideshowIntervals = {};
+    let sliderState = {};
 
     async function loadSizes() {
         try {
@@ -368,24 +450,31 @@
         }
     }
 
-    function startSlideshow(designId, images) {
-        if (images.length <= 1) return;
+    function slidePrev(designId, totalSlides) {
+        const currentState = sliderState[designId] || { currentIndex: 0 };
+        const newIndex = (currentState.currentIndex - 1 + totalSlides) % totalSlides;
+        goToSlide(designId, newIndex, totalSlides);
+    }
+
+    function slideNext(designId, totalSlides) {
+        const currentState = sliderState[designId] || { currentIndex: 0 };
+        const newIndex = (currentState.currentIndex + 1) % totalSlides;
+        goToSlide(designId, newIndex, totalSlides);
+    }
+
+    function goToSlide(designId, index, totalSlides) {
+        const wrapper = document.getElementById(`slider-wrapper-${designId}`);
+        const dots = document.querySelectorAll(`#slider-dots-${designId} .slider-dot`);
         
-        let currentIndex = 0;
-        const imgElement = document.getElementById(`img-${designId}`);
+        if (!wrapper) return;
+
+        wrapper.style.transform = `translateX(-${index * 100}%)`;
         
-        if (slideshowIntervals[designId]) clearInterval(slideshowIntervals[designId]);
-        
-        slideshowIntervals[designId] = setInterval(() => {
-            currentIndex = (currentIndex + 1) % images.length;
-            if (imgElement) {
-                imgElement.style.opacity = '0';
-                setTimeout(() => {
-                    imgElement.src = images[currentIndex];
-                    imgElement.style.opacity = '1';
-                }, 300);
-            }
-        }, 3000);
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === index);
+        });
+
+        sliderState[designId] = { currentIndex: index };
     }
 
     async function renderStore() {
@@ -393,9 +482,7 @@
         if (!container) return;
         container.innerHTML = '';
 
-        // Clear existing intervals
-        Object.values(slideshowIntervals).forEach(clearInterval);
-        slideshowIntervals = {};
+        sliderState = {};
 
         for (const p of productData) {
             const inventory = inventoryMap[p.id] || [];
@@ -422,13 +509,35 @@
                 : availableColors[0];
 
             const imagesToShow = p.images[activeColor] || [p.img];
+            const hasMultipleImages = imagesToShow.length > 1;
 
             const card = document.createElement('div');
             card.className = 'product-card group cursor-pointer';
-            
+
             card.innerHTML = `
                 <div class="relative aspect-[3/4] overflow-hidden bg-surface-container-low mb-6">
+                    ${hasMultipleImages ? `
+                    <div class="slider-container">
+                        <div class="slider-wrapper" id="slider-wrapper-${p.id}">
+                            ${imagesToShow.map((img, idx) => `
+                                <img src="${img}" alt="${p.name}" class="slider-image" data-index="${idx}">
+                            `).join('')}
+                        </div>
+                        <button class="slider-btn prev" onclick="slidePrev('${p.id}', ${imagesToShow.length})">
+                            <span class="material-symbols-outlined">chevron_left</span>
+                        </button>
+                        <button class="slider-btn next" onclick="slideNext('${p.id}', ${imagesToShow.length})">
+                            <span class="material-symbols-outlined">chevron_right</span>
+                        </button>
+                        <div class="slider-dots" id="slider-dots-${p.id}">
+                            ${imagesToShow.map((_, idx) => `
+                                <button class="slider-dot ${idx === 0 ? 'active' : ''}" onclick="goToSlide('${p.id}', ${idx}, ${imagesToShow.length})"></button>
+                            `).join('')}
+                        </div>
+                    </div>
+                    ` : `
                     <img id="img-${p.id}" class="w-full h-full object-cover transition-all duration-700 group-hover:scale-105" src="${imagesToShow[0]}" alt="${p.name}" onerror="this.src=''">
+                    `}
                     <button id="buy-btn-${p.id}" onclick="payNow('${p.id}', ${p.price})" class="absolute bottom-6 left-6 right-6 py-3 bg-[#C1FFC1]/80 backdrop-blur-md text-[#111317] font-label text-[10px] uppercase tracking-[0.2em] opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 hover:bg-[#C1FFC1] hover:scale-105">Buy Now</button>
                 </div>
                 <div class="space-y-4">
@@ -457,12 +566,9 @@
                 </div>
             `;
             container.appendChild(card);
-            
+
             if(availableColors.length > 0) {
                 updateSizes(p.id);
-                if (imagesToShow.length > 1) {
-                    startSlideshow(p.id, imagesToShow);
-                }
             } else {
                 document.getElementById(`sold-out-${p.id}`).classList.remove('hidden');
                 card.querySelectorAll('select, button').forEach(el => el.disabled = true);
@@ -474,17 +580,27 @@
         const selectedColor = document.getElementById(`color-${designId}`).value;
         const p = productData.find(item => item.id === designId);
         const imagesToShow = p.images[selectedColor] || [];
-        const imgElement = document.getElementById(`img-${designId}`);
+        const hasMultipleImages = imagesToShow.length > 1;
         
-        if (imgElement && imagesToShow.length > 0) {
-            imgElement.src = imagesToShow[0];
-            if (imagesToShow.length > 1) {
-                startSlideshow(designId, imagesToShow);
-            } else if (slideshowIntervals[designId]) {
-                clearInterval(slideshowIntervals[designId]);
+        if (hasMultipleImages) {
+            const wrapper = document.getElementById(`slider-wrapper-${designId}`);
+            if (wrapper) {
+                wrapper.innerHTML = imagesToShow.map((img, idx) => `
+                    <img src="${img}" alt="${p.name}" class="slider-image" data-index="${idx}">
+                `).join('');
+                goToSlide(designId, 0, imagesToShow.length);
+            }
+        } else if (imagesToShow.length === 1) {
+            const wrapper = document.getElementById(`slider-wrapper-${designId}`);
+            const singleImg = document.getElementById(`img-${designId}`);
+            if (wrapper) {
+                wrapper.innerHTML = `<img src="${imagesToShow[0]}" alt="${p.name}" class="slider-image">`;
+                wrapper.style.transform = 'translateX(0)';
+            } else if (singleImg) {
+                singleImg.src = imagesToShow[0];
             }
         }
-        
+
         updateSizes(designId);
     }
 
