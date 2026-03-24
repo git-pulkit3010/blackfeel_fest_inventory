@@ -32,7 +32,59 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Simple in-memory store for OTPs (Note: For a large scale production app, use Redis or Postgres for this)
+const otpStore = new Map();
+
+// Helper to generate a 6-digit OTP
+const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
+
 app.use(express.static('public'));
+
+// Send OTP
+app.post('/api/send-otp', async (req, res) => {
+  const { email, name } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email is required' });
+
+  const otp = generateOTP();
+  // Store OTP with a 10-minute expiration
+  otpStore.set(email, { otp, expiresAt: Date.now() + 10 * 60 * 1000 });
+
+  try {
+    await resend.emails.send({
+      from: 'BlackWeave <verify@drop.blackfeel.co.in>', // Update with your verified Resend domain
+      to: email,
+      subject: 'BlackWeave - Verify your email',
+      html: `
+        <div style="font-family: sans-serif; color: #111317;">
+            <h2>Hi ${name},</h2>
+            <p>Your verification code for checkout is: <strong style="font-size: 24px;">${otp}</strong></p>
+            <p>This code will expire in 10 minutes.</p>
+        </div>
+      `
+    });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Resend OTP Error:', error);
+    res.status(500).json({ error: 'Failed to send OTP email' });
+  }
+});
+
+// Verify OTP
+app.post('/api/verify-otp', (req, res) => {
+  const { email, otp } = req.body;
+  const storedData = otpStore.get(email);
+
+  if (!storedData || storedData.otp !== otp || Date.now() > storedData.expiresAt) {
+    return res.status(400).json({ error: 'Invalid or expired OTP' });
+  }
+
+  // OTP is valid, remove it from memory so it can't be reused
+  otpStore.delete(email);
+  res.json({ success: true });
+});
 
 // 1. Get available variants for a design
 app.get('/api/inventory/:designCode', async (req, res) => {
@@ -180,6 +232,29 @@ app.post('/api/verify-payment', async (req, res) => {
     );
 
     await client.query('COMMIT');
+
+    // --- NEW: Send Confirmation Email ---
+    try {
+      await resend.emails.send({
+        from: 'BlackWeave <orders@yourdomain.com>', // Update with your verified Resend domain
+        to: customer.email,
+        subject: 'Order Confirmed - BlackWeave',
+        html: `
+          <div style="font-family: sans-serif; color: #111317;">
+              <h1>Thank you for your order, ${customer.name}!</h1>
+              <p>Your order for <strong>${sku}</strong> has been successfully placed.</p>
+              <p><strong>Amount Paid:</strong> ₹${amount}</p>
+              <p><strong>Delivery Address:</strong><br/>${customer.address}</p>
+              <p>We will notify you once your item ships.</p>
+          </div>
+        `
+      });
+    } catch (emailErr) {
+      // We don't want to fail the checkout if the email fails, just log it
+      console.error("Order confirmation email failed to send:", emailErr);
+    }
+    // ------------------------------------
+
     res.json({ success: true });
   } catch (err) {
     if (client) {
