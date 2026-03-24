@@ -274,6 +274,9 @@
 
         <input type="hidden" id="temp-sku">
         <input type="hidden" id="temp-price">
+        <input type="hidden" id="temp-design-name">
+        <input type="hidden" id="temp-color">
+        <input type="hidden" id="temp-image">
     </div>
 </div>
 
@@ -630,7 +633,7 @@
     function payNow(designId, price) {
         const colorSelect = document.getElementById(`color-${designId}`);
         const sizeSelect = document.getElementById(`size-${designId}`);
-        
+
         if(!colorSelect.value || !sizeSelect.value) {
             alert("Please select color and size.");
             return;
@@ -641,8 +644,16 @@
         const colorCode = (color === 'White') ? 'WH' : 'BL';
         const sku = `TEE-${size}-${colorCode}-${designId}`;
 
+        // Get product details
+        const product = productData.find(p => p.id === designId);
+        const imagesToShow = product.images[color] || [];
+        const productImage = imagesToShow[0]; // First image as main
+
         document.getElementById('temp-sku').value = sku;
         document.getElementById('temp-price').value = price;
+        document.getElementById('temp-design-name').value = product.name;
+        document.getElementById('temp-color').value = color;
+        document.getElementById('temp-image').value = productImage;
 
         const modal = document.getElementById('checkout-modal');
         modal.classList.remove('hidden');
@@ -752,6 +763,9 @@
     async function processRazorpay() {
         const sku = document.getElementById('temp-sku').value;
         const price = document.getElementById('temp-price').value;
+        const designName = document.getElementById('temp-design-name').value;
+        const color = document.getElementById('temp-color').value;
+        const productImage = document.getElementById('temp-image').value;
         const customer = {
             name: document.getElementById('cust-name').value,
             email: document.getElementById('cust-email').value,
@@ -774,7 +788,7 @@
             }
 
             const options = {
-                "key": "rzp_live_SUytjo6uiPcFjN", // Note: Ensure you switch to test keys if testing!
+                "key": "rzp_test_SUhFFqpdvK1yD8", // Note: Ensure you switch to test keys if testing!
                 "amount": order.amount,
                 "currency": "INR",
                 "name": "BlackWeave",
@@ -796,7 +810,10 @@
                                 order_id: response.razorpay_order_id,
                                 payment_signature: response.razorpay_signature,
                                 amount: price,
-                                customer: customer
+                                customer: customer,
+                                designName: designName,
+                                color: color,
+                                productImage: productImage
                             })
                         });
                         alert('Payment Successful! Check your email for order confirmation.');
