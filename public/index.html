@@ -249,20 +249,31 @@
 <div id="checkout-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-surface/80 backdrop-blur-sm px-4">
     <div class="bg-surface-container border border-outline-variant p-8 w-full max-w-md space-y-6">
         <h2 class="font-headline text-2xl text-on-surface text-center uppercase tracking-widest">Delivery Details</h2>
-        <div class="space-y-4">
+
+        <div id="details-section" class="space-y-4">
             <input type="text" id="cust-name" placeholder="Full Name" required class="w-full bg-transparent border-b border-outline-variant py-2 text-[12px] tracking-widest outline-none focus:border-primary transition-colors text-on-surface placeholder:text-outline">
             <input type="email" id="cust-email" placeholder="Email Address" required class="w-full bg-transparent border-b border-outline-variant py-2 text-[12px] tracking-widest outline-none focus:border-primary transition-colors text-on-surface placeholder:text-outline">
             <input type="tel" id="cust-phone" placeholder="Phone Number" required class="w-full bg-transparent border-b border-outline-variant py-2 text-[12px] tracking-widest outline-none focus:border-primary transition-colors text-on-surface placeholder:text-outline">
             <textarea id="cust-address" rows="3" placeholder="Complete Delivery Address" required class="w-full bg-transparent border-b border-outline-variant py-2 text-[12px] tracking-widest outline-none focus:border-primary transition-colors text-on-surface placeholder:text-outline resize-none"></textarea>
+
+            <div class="flex flex-col gap-4 pt-4">
+                <button id="send-otp-btn" onclick="initiateCheckout()" class="w-full py-3 bg-primary text-on-primary font-label text-[10px] uppercase tracking-[0.2em] hover:bg-primary-fixed-dim transition-colors">Send Verification OTP</button>
+                <button onclick="closeModal()" class="w-full py-3 border border-outline-variant text-on-surface font-label text-[10px] uppercase tracking-[0.2em] hover:bg-surface-container-high transition-colors">Cancel</button>
+            </div>
         </div>
-        
+
+        <div id="otp-section" class="hidden space-y-4">
+            <p class="text-[12px] text-primary text-center">An OTP has been sent to your email.</p>
+            <input type="text" id="cust-otp" placeholder="Enter 6-digit OTP" class="w-full text-center bg-transparent border-b border-outline-variant py-2 text-[18px] tracking-[0.5em] outline-none focus:border-primary transition-colors text-on-surface placeholder:text-outline">
+
+            <div class="flex flex-col gap-4 pt-4">
+                <button id="verify-pay-btn" onclick="verifyOTPAndPay()" class="w-full py-3 bg-[#C1FFC1] text-[#111317] font-label text-[10px] uppercase tracking-[0.2em] hover:bg-[#a3e6a3] transition-colors">Verify & Pay</button>
+                <button onclick="resetModal()" class="w-full py-3 border border-outline-variant text-on-surface font-label text-[10px] uppercase tracking-[0.2em] hover:bg-surface-container-high transition-colors">Back</button>
+            </div>
+        </div>
+
         <input type="hidden" id="temp-sku">
         <input type="hidden" id="temp-price">
-        
-        <div class="flex flex-col gap-4 pt-4">
-            <button onclick="processCheckout()" class="w-full py-3 bg-primary text-on-primary font-label text-[10px] uppercase tracking-[0.2em] hover:bg-primary-fixed-dim transition-colors">Proceed to Payment</button>
-            <button onclick="closeModal()" class="w-full py-3 border border-outline-variant text-on-surface font-label text-[10px] uppercase tracking-[0.2em] hover:bg-surface-container-high transition-colors">Cancel</button>
-        </div>
     </div>
 </div>
 
@@ -642,11 +653,19 @@
         const modal = document.getElementById('checkout-modal');
         modal.classList.add('hidden');
         modal.classList.remove('flex');
+        resetModal(); // Reset state for next time
     }
 
-    async function processCheckout() {
-        const sku = document.getElementById('temp-sku').value;
-        const price = document.getElementById('temp-price').value;
+    function resetModal() {
+        document.getElementById('details-section').classList.remove('hidden');
+        document.getElementById('otp-section').classList.add('hidden');
+        document.getElementById('cust-otp').value = '';
+        document.getElementById('send-otp-btn').innerText = 'Send Verification OTP';
+        document.getElementById('send-otp-btn').disabled = false;
+    }
+
+    // Step 1: Send OTP
+    async function initiateCheckout() {
         const customer = {
             name: document.getElementById('cust-name').value,
             email: document.getElementById('cust-email').value,
@@ -658,6 +677,87 @@
             alert("Please fill in all delivery details.");
             return;
         }
+
+        const btn = document.getElementById('send-otp-btn');
+        btn.innerText = 'Sending...';
+        btn.disabled = true;
+
+        try {
+            const res = await fetch('/api/send-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: customer.email, name: customer.name })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                // Hide details, show OTP input
+                document.getElementById('details-section').classList.add('hidden');
+                document.getElementById('otp-section').classList.remove('hidden');
+            } else {
+                alert(data.error || "Failed to send OTP.");
+                btn.innerText = 'Send Verification OTP';
+                btn.disabled = false;
+            }
+        } catch (err) {
+            alert("Server error. Please try again.");
+            btn.innerText = 'Send Verification OTP';
+            btn.disabled = false;
+        }
+    }
+
+    // Step 2: Verify OTP and Call Razorpay
+    async function verifyOTPAndPay() {
+        const email = document.getElementById('cust-email').value;
+        const otp = document.getElementById('cust-otp').value;
+
+        if(!otp) {
+            alert("Please enter the OTP.");
+            return;
+        }
+
+        const btn = document.getElementById('verify-pay-btn');
+        btn.innerText = 'Verifying...';
+        btn.disabled = true;
+
+        try {
+            // Verify OTP first
+            const otpRes = await fetch('/api/verify-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, otp })
+            });
+
+            const otpData = await otpRes.json();
+
+            if (!otpData.success) {
+                alert(otpData.error || "Invalid OTP.");
+                btn.innerText = 'Verify & Pay';
+                btn.disabled = false;
+                return;
+            }
+
+            // OTP is valid, proceed with existing create order logic
+            await processRazorpay();
+
+        } catch (err) {
+            alert("Server error during verification.");
+            btn.innerText = 'Verify & Pay';
+            btn.disabled = false;
+        }
+    }
+
+    // Step 3: Standard Razorpay Flow (Refactored from your old processCheckout)
+    async function processRazorpay() {
+        const sku = document.getElementById('temp-sku').value;
+        const price = document.getElementById('temp-price').value;
+        const customer = {
+            name: document.getElementById('cust-name').value,
+            email: document.getElementById('cust-email').value,
+            phone: document.getElementById('cust-phone').value,
+            address: document.getElementById('cust-address').value
+        };
 
         try {
             const orderRes = await fetch('/api/create-order', {
@@ -674,10 +774,10 @@
             }
 
             const options = {
-                "key": "rzp_live_SUytjo6uiPcFjN", 
+                "key": "rzp_test_SUhFFqpdvK1yD8", // Note: Ensure you switch to test keys if testing!
                 "amount": order.amount,
                 "currency": "INR",
-                "name": "BlackFeel",
+                "name": "BlackWeave",
                 "description": "Fest Collection Order",
                 "order_id": order.id,
                 "prefill": {
@@ -690,8 +790,8 @@
                         await fetch('/api/verify-payment', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ 
-                                sku: sku, 
+                            body: JSON.stringify({
+                                sku: sku,
                                 payment_id: response.razorpay_payment_id,
                                 order_id: response.razorpay_order_id,
                                 payment_signature: response.razorpay_signature,
@@ -699,7 +799,7 @@
                                 customer: customer
                             })
                         });
-                        alert('Payment Successful! We have received your order.');
+                        alert('Payment Successful! Check your email for order confirmation.');
                         window.location.reload();
                     } catch (verificationErr) {
                         console.error("Verification API failed", verificationErr);
@@ -709,10 +809,12 @@
             };
             const rzp = new Razorpay(options);
             rzp.open();
-            closeModal();
+            closeModal(); // Close modal while Razorpay overlay is active
         } catch (err) {
             alert("Something went wrong connecting to checkout. Please try again.");
             console.error(err);
+            document.getElementById('verify-pay-btn').innerText = 'Verify & Pay';
+            document.getElementById('verify-pay-btn').disabled = false;
         }
     }
 
