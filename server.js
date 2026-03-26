@@ -162,7 +162,7 @@ function isValidRazorpaySignature(orderId, paymentId, signature) {
 
 // 3. Verify payment and save only paid orders
 app.post('/api/verify-payment', async (req, res) => {
-  const { sku, amount, payment_id, order_id, payment_signature, customer } = req.body;
+  const { sku, amount, payment_id, order_id, payment_signature, customer, designName, color } = req.body;
 
   if (!payment_id) {
     return res.status(400).json({ error: 'razorpay_payment_id is required' });
@@ -235,18 +235,120 @@ app.post('/api/verify-payment', async (req, res) => {
 
     // --- NEW: Send Confirmation Email ---
     try {
+      const getCloudflareImage = (dName, dColor) => {
+        const baseUrl = 'https://cdn.blackfeel.co.in/drop1_mail_images/';
+        const imageMap = {
+          Travis: { Black: 'D1MockupBlack.jpeg', White: 'D1MockupWhite.png' },
+          Paradise: { Black: 'D2MockupBlackBack.jpeg', White: 'D2WhiteBack.jpeg' },
+          'Karan Aujla': { Black: 'D3MockupBlackBack.png', White: 'D3MockupWhiteBack.jpeg' },
+          'Better Call Saul': { Black: 'D4MockupBlack.jpeg', White: 'D4MockupWhite.png' },
+          'Majestic Swan': { Black: 'D5MockupBlack.jpeg', White: 'D5MockupWhite.jpeg' }
+        };
+
+        if (imageMap[dName] && imageMap[dName][dColor]) {
+          return baseUrl + imageMap[dName][dColor];
+        }
+
+        return baseUrl + 'D1MockupBlack.jpeg';
+      };
+
+      const imageUrl = getCloudflareImage(designName, color);
+      
       await resend.emails.send({
-        from: 'BlackWeave <orders@yourdomain.com>', // Update with your verified Resend domain
+        from: 'BlackWeave <confirmation@drop.blackfeel.co.in>',
         to: customer.email,
         subject: 'Order Confirmed - BlackWeave',
         html: `
-          <div style="font-family: sans-serif; color: #111317;">
-              <h1>Thank you for your order, ${customer.name}!</h1>
-              <p>Your order for <strong>${sku}</strong> has been successfully placed.</p>
-              <p><strong>Amount Paid:</strong> ₹${amount}</p>
-              <p><strong>Delivery Address:</strong><br/>${customer.address}</p>
-              <p>We will notify you once your item ships.</p>
-          </div>
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <style>
+                body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
+                .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+                .header { background: linear-gradient(135deg, #111317 0%, #1e2024 100%); padding: 40px 30px; text-align: center; }
+                .header h1 { color: #e9c176; margin: 0; font-size: 28px; font-weight: 300; letter-spacing: 4px; text-transform: uppercase; }
+                .product-image { width: 100%; height: 400px; object-fit: cover; display: block; }
+                .content { padding: 40px 30px; }
+                .greeting { font-size: 22px; color: #111317; margin-bottom: 20px; font-weight: 600; }
+                .thank-you { font-size: 16px; color: #666; line-height: 1.6; margin-bottom: 30px; }
+                .order-details { background-color: #f9f9f9; border-left: 4px solid #e9c176; padding: 25px; margin: 30px 0; }
+                .order-details h2 { color: #111317; font-size: 18px; margin: 0 0 20px 0; text-transform: uppercase; letter-spacing: 2px; }
+                .detail-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; }
+                .detail-label { color: #666; font-weight: 500; }
+                .detail-value { color: #111317; font-weight: 600; }
+                .address-section { margin: 25px 0; padding: 20px; background-color: #fafafa; border-radius: 4px; }
+                .address-section h3 { color: #111317; font-size: 14px; margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 1px; }
+                .address-section p { color: #666; line-height: 1.8; margin: 0; font-size: 14px; }
+                .footer { background-color: #f5f5f5; padding: 30px; text-align: center; border-top: 1px solid #e0e0e0; }
+                .footer p { color: #999; font-size: 12px; line-height: 1.6; margin: 8px 0; }
+                .footer .contact { color: #e9c176; font-weight: 600; text-decoration: none; }
+                .divider { height: 1px; background-color: #e0e0e0; margin: 25px 0; }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h1>BlackWeave</h1>
+                </div>
+                
+                <img src="${imageUrl}" alt="${designName}" class="product-image">
+                
+                <div class="content">
+                  <div class="greeting">Thank you for your order, ${customer.name.split(' ')[0]}!</div>
+                  
+                  <div class="thank-you">
+                    Your order has been successfully placed and confirmed. We're thrilled to bring you this premium piece from our Fest Collection. Our team will carefully prepare your order and notify you once it ships.
+                  </div>
+                  
+                  <div class="order-details">
+                    <h2>Order Details</h2>
+                    <div class="detail-row">
+                      <span class="detail-label">Design</span>
+                      <span class="detail-value">${designName || 'N/A'}</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">Color</span>
+                      <span class="detail-value">${color || 'N/A'}</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">Size</span>
+                      <span class="detail-value">${sku ? sku.split('-')[1] : 'N/A'}</span>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="detail-row">
+                      <span class="detail-label">Amount Paid</span>
+                      <span class="detail-value">₹${amount}</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">Payment ID</span>
+                      <span class="detail-value" style="font-size: 12px;">${payment_id}</span>
+                    </div>
+                  </div>
+                  
+                  <div class="address-section">
+                    <h3>Delivery Address</h3>
+                    <p>
+                      <strong>${customer.name}</strong><br>
+                      ${customer.phone}<br>
+                      ${customer.address}
+                    </p>
+                  </div>
+                  
+                  <div class="thank-you" style="margin-top: 30px; font-style: italic; color: #888;">
+                    "Exploring the intersection of premium textile and design genius."
+                  </div>
+                </div>
+                
+                <div class="footer">
+                  <p><strong>BLACKWEAVE</strong> | Fest Collection</p>
+                  <p>Questions? Reach us at <a href="mailto:corporat@blackfeel.co.in" class="contact">corporat@blackfeel.co.in</a></p>
+                  <p style="margin-top: 20px; font-size: 11px;">© 2025 BlackFeel Pvt Ltd. All rights reserved.</p>
+                </div>
+              </div>
+            </body>
+          </html>
         `
       });
     } catch (emailErr) {
