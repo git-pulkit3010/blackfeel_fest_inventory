@@ -162,7 +162,7 @@ function isValidRazorpaySignature(orderId, paymentId, signature) {
 
 // 3. Verify payment and save only paid orders
 app.post('/api/verify-payment', async (req, res) => {
-  const { sku, amount, payment_id, order_id, payment_signature, customer, designName, color, productImage } = req.body;
+  const { sku, amount, payment_id, order_id, payment_signature, customer, designName, color } = req.body;
 
   if (!payment_id) {
     return res.status(400).json({ error: 'razorpay_payment_id is required' });
@@ -235,8 +235,24 @@ app.post('/api/verify-payment', async (req, res) => {
 
     // --- NEW: Send Confirmation Email ---
     try {
-      // Build the full image URL (images are stored in public/mockups/)
-      const imageUrl = productImage ? `https://blackfeel.co.in/${productImage}` : 'https://blackfeel.co.in/mockups/D1MockupBlack.jpeg';
+      const getCloudflareImage = (dName, dColor) => {
+        const baseUrl = 'https://cdn.blackfeel.co.in/drop1_mail_images/';
+        const imageMap = {
+          Travis: { Black: 'D1MockupBlack.jpeg', White: 'D1MockupWhite.png' },
+          Paradise: { Black: 'D2MockupBlackBack.jpeg', White: 'D2WhiteBack.jpeg' },
+          'Karan Aujla': { Black: 'D3MockupBlackBack.png', White: 'D3MockupWhiteBack.jpeg' },
+          'Better Call Saul': { Black: 'D4MockupBlack.jpeg', White: 'D4MockupWhite.png' },
+          'Majestic Swan': { Black: 'D5MockupBlack.jpeg', White: 'D5MockupWhite.jpeg' }
+        };
+
+        if (imageMap[dName] && imageMap[dName][dColor]) {
+          return baseUrl + imageMap[dName][dColor];
+        }
+
+        return baseUrl + 'D1MockupBlack.jpeg';
+      };
+
+      const imageUrl = getCloudflareImage(designName, color);
       
       await resend.emails.send({
         from: 'BlackWeave <confirmation@drop.blackfeel.co.in>',
@@ -299,10 +315,6 @@ app.post('/api/verify-payment', async (req, res) => {
                     <div class="detail-row">
                       <span class="detail-label">Size</span>
                       <span class="detail-value">${sku ? sku.split('-')[1] : 'N/A'}</span>
-                    </div>
-                    <div class="detail-row">
-                      <span class="detail-label">SKU</span>
-                      <span class="detail-value">${sku || 'N/A'}</span>
                     </div>
                     <div class="divider"></div>
                     <div class="detail-row">
